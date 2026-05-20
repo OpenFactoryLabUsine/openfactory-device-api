@@ -1,7 +1,7 @@
-from service.enrichment_strategy.device_enrichment_strategy import DeviceEnrichmentStrategy
-from service.enrichment_strategy.ivac_strategy import IvacStrategy
-from service.enrichment_strategy.dusttrak_strategy import DusttrakStrategy
-from service.enrichment_strategy.default_strategy import DefaultStrategy
+from services.enrichment_strategy.device_enrichment_strategy import DeviceEnrichmentStrategy
+from services.enrichment_strategy.ivac_strategy import IvacStrategy
+from services.enrichment_strategy.dusttrak_strategy import DusttrakStrategy
+from services.enrichment_strategy.default_strategy import DefaultStrategy
 from openfactory.kafka import KSQLDBClient
 
 
