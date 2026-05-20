@@ -1,4 +1,4 @@
-from services.strategy.device_enrichment_strategy.device_enrichment_strategy import DeviceEnrichmentStrategy
+from services.enrichment_strategy.device_enrichment_strategy import DeviceEnrichmentStrategy
 from openfactory.kafka import KSQLDBClient
 
 class IvacStrategy(DeviceEnrichmentStrategy):
