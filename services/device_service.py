@@ -36,7 +36,7 @@ class DeviceService:
             result = self._ksql_client.query(
                 f"SELECT ID, VALUE FROM assets "
                 f"WHERE ASSET_UUID = '{device_uuid}' "
-                f"AND TYPE IN ('Events', 'Condition') "
+                f"AND TYPE IN ('Samples') "
                 f"AND VALUE != 'UNAVAILABLE';"
             )
             return {
