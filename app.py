@@ -62,7 +62,7 @@ class OpenFactoryAPI(OpenFactoryApp):
 
         self._websocket_server = None
         self._websocket_thread: threading.Thread | None = None
-
+        
     def send_method(self, name: str, args: str):
         self.method(name, args)
 

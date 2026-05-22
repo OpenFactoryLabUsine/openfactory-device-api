@@ -14,10 +14,9 @@ class TestEquipmentMonitorIsActive:
 
 
 class TestEquipmentMonitorStart:
-    def test_initializes_asset_and_creates_stream(self, monitor, mock_openfactory_app):
+    def test_creates_stream(self, monitor, mock_openfactory_app):
         monitor._stream_service.create_equipment_stream = MagicMock(return_value="topic-1")
         monitor.start("EQUIPMENT-1")
-        mock_openfactory_app.initialize_asset.assert_called_once_with("EQUIPMENT-1")
         monitor._stream_service.create_equipment_stream.assert_called_once_with("EQUIPMENT-1")
 
     def test_does_not_start_twice(self, monitor):

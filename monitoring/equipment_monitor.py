@@ -1,5 +1,7 @@
 import asyncio
 
+from openfactory.assets import Asset
+
 from connection.registry import ConnectionRegistry
 from exceptions import StreamCreationException
 from messages import DeviceUpdateMessage
@@ -32,7 +34,7 @@ class EquipmentMonitor:
             return
 
         try:
-            self._openfactory_app.initialize_asset(asset_uuid)
+            self._initialize_asset(asset_uuid)
             topic = self._stream_service.create_equipment_stream(asset_uuid)
             self._topic_subscriber.subscribe(
                 topic=topic,
@@ -54,6 +56,13 @@ class EquipmentMonitor:
         self._stream_service.drop_equipment_stream(asset_uuid)
         self._topic_subscriber.unsubscribe(topic)
         print(f"Stopped monitoring for equipment {asset_uuid}")
+    
+    def _initialize_asset(self, asset_uuid: str):
+        self.asset = Asset(
+            asset_uuid=asset_uuid,
+            ksqlClient=self._openfactory_app.ksqlClient,
+            bootstrap_servers=self._openfactory_app.bootstrap_servers,
+        )
 
     def _on_message(self, asset_uuid: str, msg_value: dict):
         try:
