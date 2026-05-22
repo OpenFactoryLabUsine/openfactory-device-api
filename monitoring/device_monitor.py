@@ -57,8 +57,8 @@ class DeviceMonitor:
 
     def _on_message(self, device_uuid: str, msg_value: dict):
         try:
-            items = self._device_service.enrich_update(device_uuid, msg_value)
-            message = DeviceUpdateMessage(device_uuid=device_uuid, items=items).to_json()
+            variables = self._device_service.enrich_update(device_uuid, msg_value)
+            message = DeviceUpdateMessage(device_uuid=device_uuid, variables=variables).to_json()
             loop = asyncio.get_event_loop()
             if loop.is_running():
                 asyncio.run_coroutine_threadsafe(

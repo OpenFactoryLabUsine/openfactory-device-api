@@ -1,14 +1,14 @@
 from typing import Any
 
-from models import DeviceDataItem
+from models import Variable
 from services.enrichment_strategy.device_enrichment_strategy import (
     DeviceEnrichmentStrategy,
 )
 
 
 class DusttrakStrategy(DeviceEnrichmentStrategy):
-    def enrich_item(self, ksql_client, dataitem_id: str, value: Any, timestamp: str | None) -> list[DeviceDataItem]:
-        base = DeviceDataItem(id=dataitem_id, value=value, kind="sample", timestamp=timestamp)
+    def enrich_item(self, ksql_client, dataitem_id: str, value: Any, timestamp: str | None) -> list[Variable]:
+        base = Variable(id=dataitem_id, value=value, kind="sample", timestamp=timestamp)
         try:
             result = ksql_client.query(
                 f"SELECT AVERAGE_VALUE, TIMESTAMP "
@@ -19,7 +19,7 @@ class DusttrakStrategy(DeviceEnrichmentStrategy):
                 (r for r in result if "AVERAGE_VALUE" in r and "TIMESTAMP" in r), None
             )
             if first_row:
-                avg = DeviceDataItem(
+                avg = Variable(
                     id=f"avg:{dataitem_id}",
                     value=first_row["AVERAGE_VALUE"],
                     kind="avg",

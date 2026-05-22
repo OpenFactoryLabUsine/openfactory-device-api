@@ -99,11 +99,11 @@ class DeviceSession:
     async def _send_initial_data(
         self, websocket: WebSocketServerProtocol, device_uuid: str
     ):
-        data_items = self._device_service.get_device_dataitems(device_uuid)
+        variables = self._device_service.get_device_variables(device_uuid)
         await websocket.send(
             ConnectionEstablishedMessage(
                 device_uuid=device_uuid,
-                data_items=data_items,
+                variables=variables,
                 connection_count=self._registry.count(device_uuid),
             ).to_json()
         )
@@ -192,8 +192,7 @@ class DeviceSession:
             device_list = [
                 {
                     "device_uuid": uuid,
-                    "dataitems": self._device_service.get_device_dataitems(uuid),
-                    "durations": self._device_service.get_device_stats(uuid),
+                    "variables": self._device_service.get_device_variables(uuid),
                 }
                 for uuid in devices
             ]

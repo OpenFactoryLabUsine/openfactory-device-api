@@ -1,6 +1,6 @@
 from openfactory.kafka import KSQLDBClient
 
-from models import DeviceDataItem
+from models import Variable
 from services.enrichment_strategy.default_strategy import DefaultStrategy
 from services.enrichment_strategy.device_enrichment_strategy import (
     DeviceEnrichmentStrategy,
@@ -35,7 +35,7 @@ class DeviceService:
             print(f"Error getting devices: {e}")
             return []
 
-    def get_device_dataitems(self, device_uuid: str) -> dict:
+    def get_device_variables(self, device_uuid: str) -> dict:
         try:
             result = self._ksql_client.query(
                 f"SELECT ID, VALUE FROM assets "
@@ -52,7 +52,7 @@ class DeviceService:
             print(f"Error getting dataitems for {device_uuid}: {e}")
             return {}
 
-    def get_initial_items(self, device_uuid: str) -> list[DeviceDataItem]:
+    def get_initial_variables(self, device_uuid: str) -> list[Variable]:
         try:
             result = self._ksql_client.query(
                 f"SELECT ID, VALUE FROM assets "
@@ -70,7 +70,7 @@ class DeviceService:
             print(f"Error getting initial items for {device_uuid}: {e}")
             return []
 
-    def enrich_update(self, device_uuid: str, msg_value: dict) -> list[DeviceDataItem]:
+    def enrich_update(self, device_uuid: str, msg_value: dict) -> list[Variable]:
         strategy = self._get_strategy(device_uuid)
         return strategy.enrich_item(
             self._ksql_client,

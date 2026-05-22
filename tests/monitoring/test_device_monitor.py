@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock, patch
 
-from models import DeviceDataItem
+from models import Variable
 
 
 class TestDeviceMonitorIsActive:
@@ -63,7 +63,7 @@ class TestDeviceMonitorStop:
 class TestDeviceMonitorOnMessage:
     def test_broadcasts_device_update_message(self, monitor):
         monitor._device_service.enrich_update = MagicMock(return_value=[
-            DeviceDataItem(id="var1", value="1.0", kind="sample")
+            Variable(id="var1", value="1.0", kind="sample")
         ])
         with patch("monitoring.device_monitor.asyncio.get_event_loop") as mock_loop, \
              patch("monitoring.device_monitor.asyncio.run_coroutine_threadsafe") as mock_broadcast:

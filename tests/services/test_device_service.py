@@ -1,5 +1,5 @@
 
-from models import DeviceDataItem
+from models import Variable
 
 
 class TestGetAllDevices:
@@ -22,9 +22,9 @@ class TestGetInitialItems:
             {"ID": "DEVICE-1-var1", "VALUE": "1.0"},
             {"ID": "DEVICE-1-var2", "VALUE": "2.0"},
         ]
-        items = device_service.get_initial_items("DEVICE-1")
+        items = device_service.get_initial_variables("DEVICE-1")
         assert len(items) == 2
-        assert all(isinstance(i, DeviceDataItem) for i in items)
+        assert all(isinstance(i, Variable) for i in items)
         assert items[0].id == "DEVICE-1-var1"
         assert items[1].id == "DEVICE-1-var2"
 
@@ -34,26 +34,26 @@ class TestGetInitialItems:
             {"ID": "DEVICE-1-var2"},
             {"VALUE": "3.0"},
         ]
-        items = device_service.get_initial_items("DEVICE-1")
+        items = device_service.get_initial_variables("DEVICE-1")
         assert len(items) == 1
         assert items[0].id == "DEVICE-1-var1"
 
     def test_returns_empty_list_on_error(self, device_service, mock_ksql):
         mock_ksql.query.side_effect = Exception("ksql down")
-        assert device_service.get_initial_items("DEVICE-1") == []
+        assert device_service.get_initial_variables("DEVICE-1") == []
 
     def test_uses_ivac_strategy_for_ivac_device(self, device_service, mock_ksql):
         mock_ksql.query.side_effect = [
             [{"ID": "IVAC-1-var1", "VALUE": "1.0"}],
             [{"IVAC_POWER_KEY": "IVAC-1-var1_on", "TOTAL_DURATION_SEC": 100}],
         ]
-        items = device_service.get_initial_items("IVAC-1")
+        items = device_service.get_initial_variables("IVAC-1")
         kinds = {i.kind for i in items}
         assert "stat" in kinds
 
     def test_uses_default_strategy_for_unknown_device(self, device_service, mock_ksql):
         mock_ksql.query.return_value = [{"ID": "UNKNOWN-1-var1", "VALUE": "42.0"}]
-        items = device_service.get_initial_items("UNKNOWN-1")
+        items = device_service.get_initial_variables("UNKNOWN-1")
         assert len(items) == 1
         assert items[0].kind == "sample"
 

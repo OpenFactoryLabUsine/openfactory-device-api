@@ -3,13 +3,13 @@ import time
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
-from models import DeviceDataItem
+from models import Variable
 
 
 @dataclass
 class ConnectionEstablishedMessage:
     device_uuid: str
-    data_items: dict[str, Any]
+    variables: dict[str, Any]
     connection_count: int
     event: str = "connection_established"
     timestamp: float = field(default_factory=time.time)
@@ -75,7 +75,7 @@ class DevicesListMessage:
 @dataclass
 class DeviceUpdateMessage:
     device_uuid: str
-    items: list[DeviceDataItem]
+    variables: list[Variable]
     event: str = "device_update"
     timestamp: float = field(default_factory=time.time)
 
@@ -84,5 +84,5 @@ class DeviceUpdateMessage:
             "event": self.event,
             "device_uuid": self.device_uuid,
             "timestamp": self.timestamp,
-            "items": [asdict(item) for item in self.items],
+            "items": [asdict(item) for item in self.variables],
         })

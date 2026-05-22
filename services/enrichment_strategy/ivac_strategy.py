@@ -1,14 +1,14 @@
 from typing import Any
 
-from models import DeviceDataItem
+from models import Variable
 from services.enrichment_strategy.device_enrichment_strategy import (
     DeviceEnrichmentStrategy,
 )
 
 
 class IvacStrategy(DeviceEnrichmentStrategy):
-    def enrich_item(self, ksql_client, dataitem_id: str, value: Any, timestamp: str | None) -> list[DeviceDataItem]:
-        base = DeviceDataItem(id=dataitem_id, value=value, kind="sample", timestamp=timestamp)
+    def enrich_item(self, ksql_client, dataitem_id: str, value: Any, timestamp: str | None) -> list[Variable]:
+        base = Variable(id=dataitem_id, value=value, kind="sample", timestamp=timestamp)
         try:
             result = ksql_client.query(
                 f"SELECT IVAC_POWER_KEY, TOTAL_DURATION_SEC "
@@ -16,7 +16,7 @@ class IvacStrategy(DeviceEnrichmentStrategy):
                 f"WHERE IVAC_POWER_KEY LIKE '{dataitem_id}%';"
             )
             stats = [
-                DeviceDataItem(
+                Variable(
                     id=f"stat:{_strip_prefix(row['IVAC_POWER_KEY'], dataitem_id)}",
                     value=row["TOTAL_DURATION_SEC"],
                     kind="stat",

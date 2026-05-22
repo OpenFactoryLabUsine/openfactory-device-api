@@ -15,7 +15,7 @@ class ClientMessage:
         )
 
 @dataclass
-class DeviceDataItem:
+class Variable:
     id: str
     value: Any
     kind: str = "sample"
