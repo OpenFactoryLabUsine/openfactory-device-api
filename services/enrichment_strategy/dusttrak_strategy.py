@@ -7,8 +7,8 @@ from services.enrichment_strategy.equipment_enrichment_strategy import (
 
 
 class DusttrakStrategy(DeviceEnrichmentStrategy):
-    def enrich_item(self, ksql_client, dataitem_id: str, value: Any, timestamp: str | None) -> list[Variable]:
-        base = Variable(id=dataitem_id, value=value, kind="sample", timestamp=timestamp)
+    def enrich_equipment_data(self, ksql_client, variable_id: str, value: Any, timestamp: str | None) -> list[Variable]:
+        base = Variable(id=variable_id, value=value, kind="sample", timestamp=timestamp)
         try:
             result = ksql_client.query(
                 f"SELECT AVERAGE_VALUE, TIMESTAMP "
@@ -20,7 +20,7 @@ class DusttrakStrategy(DeviceEnrichmentStrategy):
             )
             if first_row:
                 avg = Variable(
-                    id=f"avg:{dataitem_id}",
+                    id=f"avg:{variable_id}",
                     value=first_row["AVERAGE_VALUE"],
                     kind="avg",
                     timestamp=first_row["TIMESTAMP"],

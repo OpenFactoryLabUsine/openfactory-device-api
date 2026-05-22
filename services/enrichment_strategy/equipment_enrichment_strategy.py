@@ -6,5 +6,5 @@ from models import Variable
 
 class DeviceEnrichmentStrategy(ABC):
     @abstractmethod
-    def enrich_item(self, ksql_client, dataitem_id: str, value: Any, timestamp: str | None) -> list[Variable]:
+    def enrich_equipment_data(self, ksql_client, variable_id: str, value: Any, timestamp: str | None) -> list[Variable]:
         ...

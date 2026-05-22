@@ -9,8 +9,8 @@ from services.enrichment_strategy.equipment_enrichment_strategy import (
 
 
 class DefaultStrategy(DeviceEnrichmentStrategy):
-    def enrich_item(self, ksql_client: KSQLDBClient, dataitem_id: str, value: Any, timestamp: str | None) -> list[Variable]:
-        return [Variable(id=dataitem_id, value=value, kind="sample", timestamp=timestamp)]
+    def enrich_equipment_data(self, ksql_client: KSQLDBClient, variable_id: str, value: Any, timestamp: str | None) -> list[Variable]:
+        return [Variable(id=variable_id, value=value, kind="sample", timestamp=timestamp)]
 
 
 

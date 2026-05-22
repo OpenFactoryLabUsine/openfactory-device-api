@@ -7,17 +7,17 @@ from services.enrichment_strategy.equipment_enrichment_strategy import (
 
 
 class IvacStrategy(DeviceEnrichmentStrategy):
-    def enrich_item(self, ksql_client, dataitem_id: str, value: Any, timestamp: str | None) -> list[Variable]:
-        base = Variable(id=dataitem_id, value=value, kind="sample", timestamp=timestamp)
+    def enrich_equipment_data(self, ksql_client, variable_id: str, value: Any, timestamp: str | None) -> list[Variable]:
+        base = Variable(id=variable_id, value=value, kind="sample", timestamp=timestamp)
         try:
             result = ksql_client.query(
                 f"SELECT IVAC_POWER_KEY, TOTAL_DURATION_SEC "
                 f"FROM IVAC_POWER_STATE_TOTALS "
-                f"WHERE IVAC_POWER_KEY LIKE '{dataitem_id}%';"
+                f"WHERE IVAC_POWER_KEY LIKE '{variable_id}%';"
             )
             stats = [
                 Variable(
-                    id=f"stat:{_strip_prefix(row['IVAC_POWER_KEY'], dataitem_id)}",
+                    id=f"stat:{_strip_prefix(row['IVAC_POWER_KEY'], variable_id)}",
                     value=row["TOTAL_DURATION_SEC"],
                     kind="stat",
                 )
@@ -25,7 +25,7 @@ class IvacStrategy(DeviceEnrichmentStrategy):
                 if "IVAC_POWER_KEY" in row and "TOTAL_DURATION_SEC" in row
             ]
         except Exception as e:
-            print(f"Error fetching IVAC stats for {dataitem_id}: {e}")
+            print(f"Error fetching IVAC stats for {variable_id}: {e}")
             stats = []
         return [base] + stats
 
