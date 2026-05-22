@@ -1,6 +1,7 @@
 import asyncio
 import contextlib
 import json
+import traceback
 from collections.abc import Callable
 
 from websockets.exceptions import ConnectionClosed
@@ -30,7 +31,8 @@ def _catch_websocket_errors(method: Callable) -> Callable:
         except StreamCreationException as e:
             await self._send_error(websocket, str(e))
         except Exception as e:
-            await self._send_error(websocket, f"Unexpected error: {e}")
+            await self._send_error(websocket, f"Unexpected error: {e} in method {method.__name__}")
+            traceback.print_exc()
 
     return wrapper
 
