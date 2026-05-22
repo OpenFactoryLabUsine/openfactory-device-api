@@ -1,18 +1,17 @@
 import asyncio
 import json
 from collections import defaultdict
-from typing import Dict, Set
 
 from websockets.server import WebSocketServerProtocol
 
 
 class ConnectionRegistry:
     def __init__(self):
-        self.device_connections: Dict[str, Set[WebSocketServerProtocol]] = defaultdict(
+        self.device_connections: dict[str, set[WebSocketServerProtocol]] = defaultdict(
             set
         )
-        self._connection_to_device: Dict[WebSocketServerProtocol, str] = {}
-        self._queues: Dict[WebSocketServerProtocol, asyncio.Queue] = {}
+        self._connection_to_device: dict[WebSocketServerProtocol, str] = {}
+        self._queues: dict[WebSocketServerProtocol, asyncio.Queue] = {}
         self._lock = asyncio.Lock()
 
     async def add(self, websocket: WebSocketServerProtocol, device_uuid: str):

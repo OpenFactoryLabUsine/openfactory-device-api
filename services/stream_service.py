@@ -1,5 +1,6 @@
-from exceptions import StreamCreationException
 from openfactory.kafka import KSQLDBClient
+
+from exceptions import StreamCreationException
 
 
 class StreamService:
@@ -22,7 +23,7 @@ class StreamService:
         except Exception as e:
             raise StreamCreationException(
                 f"Failed to create stream for device {device_uuid}: {e}"
-            )
+            ) from e
 
     def drop_device_stream(self, device_uuid: str):
         try:
@@ -33,4 +34,4 @@ class StreamService:
         except Exception as e:
             raise StreamCreationException(
                 f"Failed to drop stream for device {device_uuid}: {e}"
-            )
+            ) from e

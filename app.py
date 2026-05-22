@@ -10,11 +10,11 @@ from openfactory.kafka import KSQLDBClient
 
 from config import Config
 from connection.registry import ConnectionRegistry
-from monitoring.device_monitor import DeviceMonitor
 from connection.session import DeviceSession
+from monitoring.device_monitor import DeviceMonitor
+from monitoring.topic_subscription import TopicSubscriber
 from services.device_service import DeviceService
 from services.stream_service import StreamService
-from monitoring.topic_subscription import TopicSubscriber
 
 
 class OpenFactoryAPI(OpenFactoryApp):

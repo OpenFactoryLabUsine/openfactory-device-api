@@ -3,6 +3,8 @@ import time
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
+from models import DeviceDataItem
+
 
 @dataclass
 class ConnectionEstablishedMessage:
@@ -69,3 +71,18 @@ class DevicesListMessage:
 
     def to_json(self) -> str:
         return json.dumps(asdict(self))
+    
+@dataclass
+class DeviceUpdateMessage:
+    device_uuid: str
+    items: list[DeviceDataItem]
+    event: str = "device_update"
+    timestamp: float = field(default_factory=time.time)
+
+    def to_json(self) -> str:
+        return json.dumps({
+            "event": self.event,
+            "device_uuid": self.device_uuid,
+            "timestamp": self.timestamp,
+            "items": [asdict(item) for item in self.items],
+        })

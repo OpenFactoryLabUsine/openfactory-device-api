@@ -1,1 +1,5 @@
 websockets
+pytest
+requests
+ruff
+pytest-asyncio

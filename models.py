@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 
@@ -13,3 +13,11 @@ class ClientMessage:
             method=data.get("method", ""),
             params=data.get("params", {}),
         )
+
+@dataclass
+class DeviceDataItem:
+    id: str
+    value: Any
+    kind: str = "sample"
+    timestamp: str | None = None
+    meta: dict = field(default_factory=dict)

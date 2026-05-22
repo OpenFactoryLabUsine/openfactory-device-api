@@ -1,6 +1,6 @@
 import json
 import threading
-from typing import Callable, Optional
+from collections.abc import Callable
 
 from kafka import KafkaConsumer
 
@@ -17,7 +17,7 @@ class TopicSubscriber:
         topic: str,
         group_id: str,
         on_message: Callable[[str, dict], None],
-        message_filter: Optional[Callable[[str], bool]] = None,
+        message_filter: Callable[[str], bool] | None = None,
     ):
         if topic in self._consumers:
             print(f"Already subscribed to {topic}")
@@ -50,7 +50,7 @@ class TopicSubscriber:
         topic: str,
         group_id: str,
         on_message: Callable[[str, dict], None],
-        message_filter: Optional[Callable[[str], bool]],
+        message_filter: Callable[[str], bool] | None,
     ):
         try:
             consumer = KafkaConsumer(

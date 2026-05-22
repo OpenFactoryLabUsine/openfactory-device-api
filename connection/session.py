@@ -1,12 +1,12 @@
 import asyncio
+import contextlib
 import json
-from typing import Callable
+from collections.abc import Callable
 
 from websockets.exceptions import ConnectionClosed
 from websockets.server import WebSocketServerProtocol
 
 from connection.registry import ConnectionRegistry
-from monitoring.device_monitor import DeviceMonitor
 from exceptions import DeviceNotFoundException, StreamCreationException
 from messages import (
     ConnectionEstablishedMessage,
@@ -17,6 +17,7 @@ from messages import (
     StreamDroppedMessage,
 )
 from models import ClientMessage
+from monitoring.device_monitor import DeviceMonitor
 from services.device_service import DeviceService
 
 
@@ -86,7 +87,7 @@ class DeviceSession:
                 try:
                     await task
                 except asyncio.CancelledError:
-                    pass
+                    contextlib.suppress(asyncio.CancelledError)
             for task in done:
                 if not task.cancelled() and task.exception():
                     print(f"Task error: {task.exception()}")
@@ -116,7 +117,7 @@ class DeviceSession:
                 try:
                     message = await asyncio.wait_for(queue.get(), timeout=1.0)
                     await websocket.send(message)
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     await websocket.send(PingMessage().to_json())
                 except ConnectionClosed:
                     break
@@ -132,7 +133,7 @@ class DeviceSession:
                     raw = await asyncio.wait_for(websocket.recv(), timeout=30.0)
                     message = ClientMessage.from_dict(json.loads(raw))
                     await self._route(websocket, device_uuid, message)
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     continue
                 except json.JSONDecodeError as e:
                     await self._send_error(websocket, f"Invalid JSON: {e}")
@@ -212,10 +213,10 @@ class DeviceSession:
             try:
                 await websocket.close()
             except Exception:
-                pass
+                contextlib.suppress(Exception)
 
     async def _send_error(self, websocket: WebSocketServerProtocol, message: str):
         try:
             await websocket.send(ErrorMessage(message=message).to_json())
         except ConnectionClosed:
-            pass
+            contextlib.suppress(ConnectionClosed)
