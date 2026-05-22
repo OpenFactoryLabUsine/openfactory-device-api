@@ -1,12 +1,10 @@
 from abc import ABC, abstractmethod
-from openfactory.kafka import KSQLDBClient
+from typing import Any
+
+from models import DeviceDataItem
 
 
 class DeviceEnrichmentStrategy(ABC):
     @abstractmethod
-    def get_stats(self, ksql_client: KSQLDBClient, device_uuid: str) -> dict:
-        pass
-
-    @abstractmethod
-    def process_update(self, ksql_client: KSQLDBClient, msg_value: dict):
-        pass
+    def enrich_item(self, ksql_client, dataitem_id: str, value: Any, timestamp: str | None) -> list[DeviceDataItem]:
+        ...

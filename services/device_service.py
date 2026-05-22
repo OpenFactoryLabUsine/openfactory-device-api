@@ -1,8 +1,12 @@
-from services.enrichment_strategy.device_enrichment_strategy import DeviceEnrichmentStrategy
-from services.enrichment_strategy.ivac_strategy import IvacStrategy
-from services.enrichment_strategy.dusttrak_strategy import DusttrakStrategy
-from services.enrichment_strategy.default_strategy import DefaultStrategy
 from openfactory.kafka import KSQLDBClient
+
+from models import DeviceDataItem
+from services.enrichment_strategy.default_strategy import DefaultStrategy
+from services.enrichment_strategy.device_enrichment_strategy import (
+    DeviceEnrichmentStrategy,
+)
+from services.enrichment_strategy.dusttrak_strategy import DusttrakStrategy
+from services.enrichment_strategy.ivac_strategy import IvacStrategy
 
 
 class DeviceService:
@@ -48,8 +52,29 @@ class DeviceService:
             print(f"Error getting dataitems for {device_uuid}: {e}")
             return {}
 
-    def get_device_stats(self, device_uuid: str) -> dict:
-        return self._get_strategy(device_uuid).get_stats(self._ksql_client, device_uuid)
+    def get_initial_items(self, device_uuid: str) -> list[DeviceDataItem]:
+        try:
+            result = self._ksql_client.query(
+                f"SELECT ID, VALUE FROM assets "
+                f"WHERE ASSET_UUID = '{device_uuid}' "
+                f"AND TYPE IN ('Samples') "
+                f"AND VALUE != 'UNAVAILABLE';"
+            )
+            strategy = self._get_strategy(device_uuid)
+            items = []
+            for row in result:
+                if "ID" in row and "VALUE" in row:
+                    items.extend(strategy.enrich_item(self._ksql_client, row["ID"], row["VALUE"], None))
+            return items
+        except Exception as e:
+            print(f"Error getting initial items for {device_uuid}: {e}")
+            return []
 
-    def process_update(self, device_uuid: str, msg_value: dict):
-        self._get_strategy(device_uuid).process_update(self._ksql_client, msg_value)
+    def enrich_update(self, device_uuid: str, msg_value: dict) -> list[DeviceDataItem]:
+        strategy = self._get_strategy(device_uuid)
+        return strategy.enrich_item(
+            self._ksql_client,
+            msg_value["ID"],
+            msg_value.get("VALUE"),
+            msg_value.get("TIMESTAMP"),
+        )

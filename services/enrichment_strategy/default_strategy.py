@@ -1,12 +1,17 @@
-from services.enrichment_strategy.device_enrichment_strategy import DeviceEnrichmentStrategy
+from typing import Any
+
 from openfactory.kafka import KSQLDBClient
 
-class DefaultStrategy(DeviceEnrichmentStrategy):
-    def get_stats(self, ksql_client: KSQLDBClient, device_uuid: str) -> dict:
-        return {}
+from models import DeviceDataItem
+from services.enrichment_strategy.device_enrichment_strategy import (
+    DeviceEnrichmentStrategy,
+)
 
-    def process_update(self, ksql_client: KSQLDBClient, msg_value: dict):
-        pass
+
+class DefaultStrategy(DeviceEnrichmentStrategy):
+    def enrich_item(self, ksql_client: KSQLDBClient, dataitem_id: str, value: Any, timestamp: str | None) -> list[DeviceDataItem]:
+        return [DeviceDataItem(id=dataitem_id, value=value, kind="sample", timestamp=timestamp)]
+
 
 
 

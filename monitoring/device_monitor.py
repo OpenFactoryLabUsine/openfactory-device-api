@@ -1,11 +1,11 @@
 import asyncio
-import time
 
 from connection.registry import ConnectionRegistry
 from exceptions import StreamCreationException
+from messages import DeviceUpdateMessage
+from monitoring.topic_subscription import TopicSubscriber
 from services.device_service import DeviceService
 from services.stream_service import StreamService
-from monitoring.topic_subscription import TopicSubscriber
 
 
 class DeviceMonitor:
@@ -57,22 +57,12 @@ class DeviceMonitor:
 
     def _on_message(self, device_uuid: str, msg_value: dict):
         try:
-            self._device_service.process_update(device_uuid, msg_value)
-
-            message = {
-                "asset_uuid": device_uuid,
-                "data": dict(msg_value),
-                "timestamp": time.time(),
-            }
-
+            items = self._device_service.enrich_update(device_uuid, msg_value)
+            message = DeviceUpdateMessage(device_uuid=device_uuid, items=items).to_json()
             loop = asyncio.get_event_loop()
             if loop.is_running():
                 asyncio.run_coroutine_threadsafe(
-                    self._registry.broadcast(device_uuid, message),
-                    loop,
+                    self._registry.broadcast(device_uuid, message), loop
                 )
-            else:
-                print(f"No running event loop to broadcast message for {device_uuid}")
-
         except Exception as e:
             print(f"Error handling message for {device_uuid}: {e}")
