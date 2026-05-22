@@ -12,7 +12,7 @@ class DusttrakStrategy(DeviceEnrichmentStrategy):
         try:
             result = ksql_client.query(
                 f"SELECT AVERAGE_VALUE, TIMESTAMP "
-                f"FROM {id}_moving_average "
+                f"FROM {variable_id}_moving_average "
                 f"WHERE timestamp LIKE '{timestamp[:-10]}%';"
             )
             first_row = next(

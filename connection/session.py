@@ -28,8 +28,10 @@ def _catch_websocket_errors(method: Callable) -> Callable:
             return await method(self, websocket, *args, **kwargs)
         except DeviceNotFoundException as e:
             await self._send_error(websocket, str(e))
+            traceback.print_exc()
         except StreamCreationException as e:
             await self._send_error(websocket, str(e))
+            traceback.print_exc()
         except Exception as e:
             await self._send_error(websocket, f"Unexpected error: {e} in method {method.__name__}")
             traceback.print_exc()
