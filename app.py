@@ -11,9 +11,9 @@ from openfactory.kafka import KSQLDBClient
 from config import Config
 from connection.registry import ConnectionRegistry
 from connection.session import DeviceSession
-from monitoring.device_monitor import DeviceMonitor
+from monitoring.equipment_monitor import DeviceMonitor
 from monitoring.topic_subscription import TopicSubscriber
-from services.device_service import DeviceService
+from services.equipment_service import DeviceService
 from services.stream_service import StreamService
 
 
@@ -39,7 +39,7 @@ class OpenFactoryAPI(OpenFactoryApp):
         self.config = config
         self.running = True
 
-        device_service = DeviceService(ksql_client)
+        equipment_service = DeviceService(ksql_client)
         stream_service = StreamService(ksql_client)
         topic_subscriber = TopicSubscriber(bootstrap_servers)
         registry = ConnectionRegistry()
@@ -48,7 +48,7 @@ class OpenFactoryAPI(OpenFactoryApp):
             stream_service=stream_service,
             topic_subscriber=topic_subscriber,
             openfactory_app=self,
-            device_service=device_service,
+            equipment_service=equipment_service,
             registry=registry,
         )
 
@@ -56,7 +56,7 @@ class OpenFactoryAPI(OpenFactoryApp):
         self._session = DeviceSession(
             registry=registry,
             monitor=monitor,
-            device_service=device_service,
+            equipment_service=equipment_service,
             openfactory_app=self,
         )
 
@@ -79,7 +79,7 @@ class OpenFactoryAPI(OpenFactoryApp):
                 if total > 0:
                     print(
                         f"Active connections: {total} "
-                        f"across {len(self._registry.device_connections)} devices"
+                        f"across {len(self._registry.equipment_connections)} equipments"
                     )
                 time.sleep(30)
             except KeyboardInterrupt:

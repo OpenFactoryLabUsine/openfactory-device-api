@@ -1,5 +1,5 @@
 [project]
-name = "openfactory-device-api"
+name = "openfactory-equipment-api"
 version = "0.0.1"
 description = "OpenFactory API."
 requires-python = ">=3.12"

@@ -72,27 +72,27 @@ class TestConsume:
 
     def test_calls_on_message_for_matching_key(self, topic_subscriber):
         on_message = MagicMock()
-        msg = self._make_message("DEVICE-1", {"ID": "var1", "VALUE": "1.0"})
+        msg = self._make_message("EQUIPMENT-1", {"ID": "var1", "VALUE": "1.0"})
         topic_subscriber._stop_flags["topic-1"] = threading.Event()
 
         with patch("monitoring.topic_subscription.KafkaConsumer", return_value=self._make_consumer([msg])):
-            topic_subscriber._consume("topic-1", "group-1", on_message, lambda key: key == "DEVICE-1")
+            topic_subscriber._consume("topic-1", "group-1", on_message, lambda key: key == "EQUIPMENT-1")
 
-        on_message.assert_called_once_with("DEVICE-1", {"ID": "var1", "VALUE": "1.0"})
+        on_message.assert_called_once_with("EQUIPMENT-1", {"ID": "var1", "VALUE": "1.0"})
 
     def test_skips_message_not_matching_filter(self, topic_subscriber):
         on_message = MagicMock()
-        msg = self._make_message("DEVICE-2", {"ID": "var1", "VALUE": "1.0"})
+        msg = self._make_message("EQUIPMENT-2", {"ID": "var1", "VALUE": "1.0"})
         topic_subscriber._stop_flags["topic-1"] = threading.Event()
 
         with patch("monitoring.topic_subscription.KafkaConsumer", return_value=self._make_consumer([msg])):
-            topic_subscriber._consume("topic-1", "group-1", on_message, lambda key: key == "DEVICE-1")
+            topic_subscriber._consume("topic-1", "group-1", on_message, lambda key: key == "EQUIPMENT-1")
 
         on_message.assert_not_called()
 
     def test_skips_message_with_none_value(self, topic_subscriber):
         on_message = MagicMock()
-        msg = self._make_message("DEVICE-1", None)
+        msg = self._make_message("EQUIPMENT-1", None)
         topic_subscriber._stop_flags["topic-1"] = threading.Event()
 
         with patch("monitoring.topic_subscription.KafkaConsumer", return_value=self._make_consumer([msg])):
@@ -102,7 +102,7 @@ class TestConsume:
 
     def test_calls_on_message_without_filter(self, topic_subscriber):
         on_message = MagicMock()
-        msg = self._make_message("DEVICE-1", {"ID": "var1", "VALUE": "1.0"})
+        msg = self._make_message("EQUIPMENT-1", {"ID": "var1", "VALUE": "1.0"})
         topic_subscriber._stop_flags["topic-1"] = threading.Event()
 
         with patch("monitoring.topic_subscription.KafkaConsumer", return_value=self._make_consumer([msg])):
@@ -115,7 +115,7 @@ class TestConsume:
         stop_flag = threading.Event()
         stop_flag.set()
         topic_subscriber._stop_flags["topic-1"] = stop_flag
-        msg = self._make_message("DEVICE-1", {"ID": "var1", "VALUE": "1.0"})
+        msg = self._make_message("EQUIPMENT-1", {"ID": "var1", "VALUE": "1.0"})
 
         with patch("monitoring.topic_subscription.KafkaConsumer", return_value=self._make_consumer([msg])):
             topic_subscriber._consume("topic-1", "group-1", on_message, None)

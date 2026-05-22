@@ -4,7 +4,7 @@ from connection.registry import ConnectionRegistry
 from exceptions import StreamCreationException
 from messages import DeviceUpdateMessage
 from monitoring.topic_subscription import TopicSubscriber
-from services.device_service import DeviceService
+from services.equipment_service import DeviceService
 from services.stream_service import StreamService
 
 
@@ -14,55 +14,55 @@ class DeviceMonitor:
         stream_service: StreamService,
         topic_subscriber: TopicSubscriber,
         openfactory_app,
-        device_service: DeviceService,
+        equipment_service: DeviceService,
         registry: ConnectionRegistry,
     ):
         self._stream_service = stream_service
         self._topic_subscriber = topic_subscriber
         self._openfactory_app = openfactory_app
-        self._device_service = device_service
+        self._equipment_service = equipment_service
         self._registry = registry
         self._active: dict[str, str] = {}
 
-    def is_active(self, device_uuid: str) -> bool:
-        return device_uuid in self._active
+    def is_active(self, asset_uuid: str) -> bool:
+        return asset_uuid in self._active
 
-    def start(self, device_uuid: str):
-        if self.is_active(device_uuid):
+    def start(self, asset_uuid: str):
+        if self.is_active(asset_uuid):
             return
 
         try:
-            self._openfactory_app.initialize_asset(device_uuid)
-            topic = self._stream_service.create_device_stream(device_uuid)
+            self._openfactory_app.initialize_asset(asset_uuid)
+            topic = self._stream_service.create_equipment_stream(asset_uuid)
             self._topic_subscriber.subscribe(
                 topic=topic,
-                group_id=f"api_device_stream_group_{device_uuid}",
+                group_id=f"api_equipment_stream_group_{asset_uuid}",
                 on_message=self._on_message,
-                message_filter=lambda key: key == device_uuid,
+                message_filter=lambda key: key == asset_uuid,
             )
-            self._active[device_uuid] = topic
-            print(f"Started monitoring for device {device_uuid}")
+            self._active[asset_uuid] = topic
+            print(f"Started monitoring for equipment {asset_uuid}")
 
         except StreamCreationException as e:
-            print(f"Failed to start monitoring for {device_uuid}: {e}")
+            print(f"Failed to start monitoring for {asset_uuid}: {e}")
             raise
 
-    def stop(self, device_uuid: str):
-        if not self.is_active(device_uuid):
+    def stop(self, asset_uuid: str):
+        if not self.is_active(asset_uuid):
             return
-        topic = self._active.pop(device_uuid)
-        self._stream_service.drop_device_stream(device_uuid)
+        topic = self._active.pop(asset_uuid)
+        self._stream_service.drop_equipment_stream(asset_uuid)
         self._topic_subscriber.unsubscribe(topic)
-        print(f"Stopped monitoring for device {device_uuid}")
+        print(f"Stopped monitoring for equipment {asset_uuid}")
 
-    def _on_message(self, device_uuid: str, msg_value: dict):
+    def _on_message(self, asset_uuid: str, msg_value: dict):
         try:
-            variables = self._device_service.enrich_update(device_uuid, msg_value)
-            message = DeviceUpdateMessage(device_uuid=device_uuid, variables=variables).to_json()
+            variables = self._equipment_service.enrich_update(asset_uuid, msg_value)
+            message = DeviceUpdateMessage(asset_uuid=asset_uuid, variables=variables).to_json()
             loop = asyncio.get_event_loop()
             if loop.is_running():
                 asyncio.run_coroutine_threadsafe(
-                    self._registry.broadcast(device_uuid, message), loop
+                    self._registry.broadcast(asset_uuid, message), loop
                 )
         except Exception as e:
-            print(f"Error handling message for {device_uuid}: {e}")
+            print(f"Error handling message for {asset_uuid}: {e}")

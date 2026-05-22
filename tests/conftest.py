@@ -17,9 +17,9 @@ for _mod in _MISSING_MODULES:
 from config import Config  # noqa: E402
 from connection.registry import ConnectionRegistry  # noqa: E402
 from connection.session import DeviceSession  # noqa: E402
-from monitoring.device_monitor import DeviceMonitor  # noqa: E402
+from monitoring.equipment_monitor import DeviceMonitor  # noqa: E402
 from monitoring.topic_subscription import TopicSubscriber  # noqa: E402
-from services.device_service import DeviceService  # noqa: E402
+from services.equipment_service import DeviceService  # noqa: E402
 from services.stream_service import StreamService  # noqa: E402
 
 
@@ -47,7 +47,7 @@ def config():
 
 
 @pytest.fixture
-def device_service(mock_ksql):
+def equipment_service(mock_ksql):
     return DeviceService(mock_ksql)
 
 @pytest.fixture
@@ -65,23 +65,23 @@ def mock_openfactory_app():
     return app
 
 @pytest.fixture
-def monitor(stream_service, device_service, registry, mock_openfactory_app,
+def monitor(stream_service, equipment_service, registry, mock_openfactory_app,
             mock_bootstrap_servers):
     topic_subscriber = MagicMock()
     return DeviceMonitor(
         stream_service=stream_service,
         topic_subscriber=topic_subscriber,
         openfactory_app=mock_openfactory_app,
-        device_service=device_service,
+        equipment_service=equipment_service,
         registry=registry,
     )
 
 @pytest.fixture
-def session(registry, monitor, device_service, mock_openfactory_app):
+def session(registry, monitor, equipment_service, mock_openfactory_app):
     return DeviceSession(
         registry=registry,
         monitor=monitor,
-        device_service=device_service,
+        equipment_service=equipment_service,
         openfactory_app=mock_openfactory_app,
     )
 
@@ -91,7 +91,7 @@ def mock_websocket():
     ws.remote_address = ("127.0.0.1", 12345)
 
     ws.request = MagicMock()
-    ws.request.path = "/ws/devices" 
+    ws.request.path = "/ws/equipments" 
     ws.send = AsyncMock()
     ws.recv = AsyncMock()
     ws.close = AsyncMock()

@@ -17,8 +17,8 @@ from messages import (
     StreamDroppedMessage,
 )
 from models import ClientMessage
-from monitoring.device_monitor import DeviceMonitor
-from services.device_service import DeviceService
+from monitoring.equipment_monitor import DeviceMonitor
+from services.equipment_service import DeviceService
 
 
 def _catch_websocket_errors(method: Callable) -> Callable:
@@ -40,43 +40,43 @@ class DeviceSession:
         self,
         registry: ConnectionRegistry,
         monitor: DeviceMonitor,
-        device_service: DeviceService,
+        equipment_service: DeviceService,
         openfactory_app,
     ):
         self._registry = registry
         self._monitor = monitor
-        self._device_service = device_service
+        self._equipment_service = equipment_service
         self._openfactory_app = openfactory_app
         self._dispatch: dict[str, Callable] = {
             "simulation_mode": self._set_simulation_mode,
-            "drop_stream": self._drop_stream,
+            "drop_connection": self._drop_connection,
         }
 
     async def accept(self, websocket: WebSocketServerProtocol):
         path = websocket.request.path
 
-        if path == "/ws/devices":
-            await self._send_devices_list(websocket)
+        if path == "/ws/equipments":
+            await self._send_equipments_list(websocket)
             return
 
-        if not path.startswith("/ws/devices/"):
+        if not path.startswith("/ws/equipments/"):
             await self._send_error(websocket, "Invalid endpoint")
             return
 
-        device_uuid = path.split("/")[3]
-        await self._run(websocket, device_uuid)
+        asset_uuid = path.split("/")[3]
+        await self._run(websocket, asset_uuid)
 
     @_catch_websocket_errors
-    async def _run(self, websocket: WebSocketServerProtocol, device_uuid: str):
-        await self._registry.add(websocket, device_uuid)
+    async def _run(self, websocket: WebSocketServerProtocol, asset_uuid: str):
+        await self._registry.add(websocket, asset_uuid)
         try:
-            if not self._monitor.is_active(device_uuid):
-                self._monitor.start(device_uuid)
+            if not self._monitor.is_active(asset_uuid):
+                self._monitor.start(asset_uuid)
 
-            await self._send_initial_data(websocket, device_uuid)
+            await self._send_initial_data(websocket, asset_uuid)
 
             outgoing = asyncio.create_task(self._pipe_outgoing(websocket))
-            incoming = asyncio.create_task(self._pipe_incoming(websocket, device_uuid))
+            incoming = asyncio.create_task(self._pipe_incoming(websocket, asset_uuid))
 
             done, pending = await asyncio.wait(
                 [outgoing, incoming],
@@ -93,18 +93,18 @@ class DeviceSession:
                     print(f"Task error: {task.exception()}")
         finally:
             await self._registry.remove(websocket)
-            print(f"Session closed for device: {device_uuid}")
+            print(f"Session closed for equipment: {asset_uuid}")
 
     @_catch_websocket_errors
     async def _send_initial_data(
-        self, websocket: WebSocketServerProtocol, device_uuid: str
+        self, websocket: WebSocketServerProtocol, asset_uuid: str
     ):
-        variables = self._device_service.get_device_variables(device_uuid)
+        variables = self._equipment_service.get_equipment_variables(asset_uuid)
         await websocket.send(
             ConnectionEstablishedMessage(
-                device_uuid=device_uuid,
+                asset_uuid=asset_uuid,
                 variables=variables,
-                connection_count=self._registry.count(device_uuid),
+                connection_count=self._registry.count(asset_uuid),
             ).to_json()
         )
 
@@ -125,14 +125,14 @@ class DeviceSession:
             print(f"Outgoing pipe error: {e}")
 
     async def _pipe_incoming(
-        self, websocket: WebSocketServerProtocol, device_uuid: str
+        self, websocket: WebSocketServerProtocol, asset_uuid: str
     ):
         try:
             while True:
                 try:
                     raw = await asyncio.wait_for(websocket.recv(), timeout=30.0)
                     message = ClientMessage.from_dict(json.loads(raw))
-                    await self._route(websocket, device_uuid, message)
+                    await self._route(websocket, asset_uuid, message)
                 except TimeoutError:
                     continue
                 except json.JSONDecodeError as e:
@@ -140,24 +140,24 @@ class DeviceSession:
                 except ConnectionClosed:
                     break
         except Exception as e:
-            print(f"Incoming pipe error for {device_uuid}: {e}")
+            print(f"Incoming pipe error for {asset_uuid}: {e}")
 
     async def _route(
         self,
         websocket: WebSocketServerProtocol,
-        device_uuid: str,
+        asset_uuid: str,
         message: ClientMessage,
     ):
         handler = self._dispatch.get(message.method)
         if not handler:
             await self._send_error(websocket, f"Unknown method: {message.method}")
             return
-        await handler(websocket, device_uuid, message.params)
+        await handler(websocket, asset_uuid, message.params)
 
     async def _set_simulation_mode(
         self,
         websocket: WebSocketServerProtocol,
-        device_uuid: str,
+        asset_uuid: str,
         params: dict,
     ):
         name = params.get("name")
@@ -177,37 +177,37 @@ class DeviceSession:
                 ).to_json()
             )
 
-    async def _drop_stream(
+    async def _drop_connection(
         self,
         websocket: WebSocketServerProtocol,
-        device_uuid: str,
+        asset_uuid: str,
         params: dict,
     ):
-        self._monitor.stop(device_uuid)
-        await websocket.send(StreamDroppedMessage(device_uuid=device_uuid).to_json())
+        self._monitor.stop(asset_uuid)
+        await websocket.send(StreamDroppedMessage(asset_uuid=asset_uuid).to_json())
 
-    async def _send_devices_list(self, websocket: WebSocketServerProtocol):
+    async def _send_equipments_list(self, websocket: WebSocketServerProtocol):
         try:
-            devices = self._device_service.get_all_devices()
-            device_list = [
+            equipments = self._equipment_service.get_all_equipments()
+            equipment_list = [
                 {
-                    "device_uuid": uuid,
-                    "variables": self._device_service.get_device_variables(uuid),
+                    "asset_uuid": uuid,
+                    "variables": self._equipment_service.get_equipment_variables(uuid),
                 }
-                for uuid in devices
+                for uuid in equipments
             ]
-            await websocket.send(DevicesListMessage(devices=device_list).to_json())
+            await websocket.send(DevicesListMessage(equipments=equipment_list).to_json())
 
             while True:
                 try:
                     await asyncio.sleep(30)
                     await websocket.send(
-                        PingMessage(active_devices=len(device_list)).to_json()
+                        PingMessage(active_equipments=len(equipment_list)).to_json()
                     )
                 except ConnectionClosed:
                     break
         except Exception as e:
-            await self._send_error(websocket, f"Failed to get devices list: {e}")
+            await self._send_error(websocket, f"Failed to get equipments list: {e}")
         finally:
             try:
                 await websocket.close()

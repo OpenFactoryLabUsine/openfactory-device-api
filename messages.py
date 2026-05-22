@@ -8,7 +8,7 @@ from models import Variable
 
 @dataclass
 class ConnectionEstablishedMessage:
-    device_uuid: str
+    asset_uuid: str
     variables: dict[str, Any]
     connection_count: int
     event: str = "connection_established"
@@ -20,7 +20,7 @@ class ConnectionEstablishedMessage:
 
 @dataclass
 class PingMessage:
-    active_devices: int = 0
+    active_equipments: int = 0
     event: str = "ping"
     timestamp: float = field(default_factory=time.time)
 
@@ -54,9 +54,9 @@ class SimulationModeUpdatedMessage:
 
 @dataclass
 class StreamDroppedMessage:
-    device_uuid: str
+    asset_uuid: str
     success: bool = True
-    event: str = "stream_dropped"
+    event: str = "connection_dropped"
     timestamp: float = field(default_factory=time.time)
 
     def to_json(self) -> str:
@@ -65,8 +65,8 @@ class StreamDroppedMessage:
 
 @dataclass
 class DevicesListMessage:
-    devices: list
-    event: str = "devices_list"
+    equipments: list
+    event: str = "equipments_list"
     timestamp: float = field(default_factory=time.time)
 
     def to_json(self) -> str:
@@ -74,15 +74,15 @@ class DevicesListMessage:
     
 @dataclass
 class DeviceUpdateMessage:
-    device_uuid: str
+    asset_uuid: str
     variables: list[Variable]
-    event: str = "device_update"
+    event: str = "equipment_update"
     timestamp: float = field(default_factory=time.time)
 
     def to_json(self) -> str:
         return json.dumps({
             "event": self.event,
-            "device_uuid": self.device_uuid,
+            "asset_uuid": self.asset_uuid,
             "timestamp": self.timestamp,
             "items": [asdict(item) for item in self.variables],
         })

@@ -3,7 +3,7 @@ from typing import Any
 from openfactory.kafka import KSQLDBClient
 
 from models import Variable
-from services.enrichment_strategy.device_enrichment_strategy import (
+from services.enrichment_strategy.equipment_enrichment_strategy import (
     DeviceEnrichmentStrategy,
 )
 
