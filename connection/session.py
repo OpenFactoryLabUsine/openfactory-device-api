@@ -17,8 +17,8 @@ from messages import (
     StreamDroppedMessage,
 )
 from models import ClientMessage
-from monitoring.equipment_monitor import DeviceMonitor
-from services.equipment_service import DeviceService
+from monitoring.equipment_monitor import EquipmentMonitor
+from services.equipment_service import EquipmentService
 
 
 def _catch_websocket_errors(method: Callable) -> Callable:
@@ -39,8 +39,8 @@ class DeviceSession:
     def __init__(
         self,
         registry: ConnectionRegistry,
-        monitor: DeviceMonitor,
-        equipment_service: DeviceService,
+        monitor: EquipmentMonitor,
+        equipment_service: EquipmentService,
         openfactory_app,
     ):
         self._registry = registry

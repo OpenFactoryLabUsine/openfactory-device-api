@@ -17,9 +17,9 @@ for _mod in _MISSING_MODULES:
 from config import Config  # noqa: E402
 from connection.registry import ConnectionRegistry  # noqa: E402
 from connection.session import DeviceSession  # noqa: E402
-from monitoring.equipment_monitor import DeviceMonitor  # noqa: E402
+from monitoring.equipment_monitor import EquipmentMonitor  # noqa: E402
 from monitoring.topic_subscription import TopicSubscriber  # noqa: E402
-from services.equipment_service import DeviceService  # noqa: E402
+from services.equipment_service import EquipmentService  # noqa: E402
 from services.stream_service import StreamService  # noqa: E402
 
 
@@ -48,7 +48,7 @@ def config():
 
 @pytest.fixture
 def equipment_service(mock_ksql):
-    return DeviceService(mock_ksql)
+    return EquipmentService(mock_ksql)
 
 @pytest.fixture
 def stream_service(mock_ksql):
@@ -68,7 +68,7 @@ def mock_openfactory_app():
 def monitor(stream_service, equipment_service, registry, mock_openfactory_app,
             mock_bootstrap_servers):
     topic_subscriber = MagicMock()
-    return DeviceMonitor(
+    return EquipmentMonitor(
         stream_service=stream_service,
         topic_subscriber=topic_subscriber,
         openfactory_app=mock_openfactory_app,

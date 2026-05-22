@@ -4,17 +4,17 @@ from connection.registry import ConnectionRegistry
 from exceptions import StreamCreationException
 from messages import DeviceUpdateMessage
 from monitoring.topic_subscription import TopicSubscriber
-from services.equipment_service import DeviceService
+from services.equipment_service import EquipmentService
 from services.stream_service import StreamService
 
 
-class DeviceMonitor:
+class EquipmentMonitor:
     def __init__(
         self,
         stream_service: StreamService,
         topic_subscriber: TopicSubscriber,
         openfactory_app,
-        equipment_service: DeviceService,
+        equipment_service: EquipmentService,
         registry: ConnectionRegistry,
     ):
         self._stream_service = stream_service

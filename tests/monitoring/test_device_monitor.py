@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 from models import Variable
 
 
-class TestDeviceMonitorIsActive:
+class TestEquipmentMonitorIsActive:
     def test_returns_false_when_not_started(self, monitor):
         assert monitor.is_active("EQUIPMENT-1") is False
 
@@ -13,7 +13,7 @@ class TestDeviceMonitorIsActive:
         assert monitor.is_active("EQUIPMENT-1") is True
 
 
-class TestDeviceMonitorStart:
+class TestEquipmentMonitorStart:
     def test_initializes_asset_and_creates_stream(self, monitor, mock_openfactory_app):
         monitor._stream_service.create_equipment_stream = MagicMock(return_value="topic-1")
         monitor.start("EQUIPMENT-1")
@@ -34,7 +34,7 @@ class TestDeviceMonitorStart:
         assert call_kwargs["topic"] == "topic-1"
 
 
-class TestDeviceMonitorStop:
+class TestEquipmentMonitorStop:
     def test_drops_stream_on_stop(self, monitor):
         monitor._stream_service.create_equipment_stream = MagicMock(return_value="topic-1")
         monitor._stream_service.drop_equipment_stream = MagicMock()
@@ -60,7 +60,7 @@ class TestDeviceMonitorStop:
         monitor._topic_subscriber.unsubscribe.assert_called_once_with("topic-1")
 
 
-class TestDeviceMonitorOnMessage:
+class TestEquipmentMonitorOnMessage:
     def test_broadcasts_equipment_update_message(self, monitor):
         monitor._equipment_service.enrich_update = MagicMock(return_value=[
             Variable(id="var1", value="1.0", kind="sample")

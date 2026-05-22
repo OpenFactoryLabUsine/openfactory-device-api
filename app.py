@@ -11,9 +11,9 @@ from openfactory.kafka import KSQLDBClient
 from config import Config
 from connection.registry import ConnectionRegistry
 from connection.session import DeviceSession
-from monitoring.equipment_monitor import DeviceMonitor
+from monitoring.equipment_monitor import EquipmentMonitor
 from monitoring.topic_subscription import TopicSubscriber
-from services.equipment_service import DeviceService
+from services.equipment_service import EquipmentService
 from services.stream_service import StreamService
 
 
@@ -39,12 +39,12 @@ class OpenFactoryAPI(OpenFactoryApp):
         self.config = config
         self.running = True
 
-        equipment_service = DeviceService(ksql_client)
+        equipment_service = EquipmentService(ksql_client)
         stream_service = StreamService(ksql_client)
         topic_subscriber = TopicSubscriber(bootstrap_servers)
         registry = ConnectionRegistry()
 
-        monitor = DeviceMonitor(
+        monitor = EquipmentMonitor(
             stream_service=stream_service,
             topic_subscriber=topic_subscriber,
             openfactory_app=self,
