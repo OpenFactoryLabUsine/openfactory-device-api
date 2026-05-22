@@ -39,5 +39,5 @@ jobs:
           build-args: |
             VERSION=${{ env.VERSION }}
           tags: |
-            ghcr.io/${{ env.REPO_OWNER }}/ofa-api:${{ env.VERSION }}
-            ghcr.io/${{ env.REPO_OWNER }}/ofa-api:latest
+            ghcr.io/${{ env.REPO_OWNER }}/equipments-api:${{ env.VERSION }}
+            ghcr.io/${{ env.REPO_OWNER }}/equipments-api:latest
