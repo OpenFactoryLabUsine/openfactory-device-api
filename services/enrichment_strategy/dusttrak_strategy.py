@@ -27,5 +27,5 @@ class DusttrakStrategy(DeviceEnrichmentStrategy):
                 )
                 return [base, avg]
         except Exception as e:
-            print(f"Error fetching avg for {id}: {e}")
+            print(f"Error fetching avg for {variable_id}: {e}")
         return [base]

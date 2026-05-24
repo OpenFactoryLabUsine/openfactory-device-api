@@ -53,6 +53,7 @@ class OpenFactoryAPI(OpenFactoryApp):
         )
 
         self._registry = registry
+        self._monitor = monitor
         self._session = DeviceSession(
             registry=registry,
             monitor=monitor,
@@ -62,7 +63,7 @@ class OpenFactoryAPI(OpenFactoryApp):
 
         self._websocket_server = None
         self._websocket_thread: threading.Thread | None = None
-        
+
     def send_method(self, name: str, args: str):
         self.method(name, args)
 
@@ -88,6 +89,7 @@ class OpenFactoryAPI(OpenFactoryApp):
     def _run_server_thread(self):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
+        self._monitor.set_event_loop(loop)
         try:
             loop.run_until_complete(self._serve())
         except Exception as e:

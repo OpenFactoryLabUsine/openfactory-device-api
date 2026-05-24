@@ -64,9 +64,11 @@ class TestEquipmentMonitorOnMessage:
         monitor._equipment_service.enrich_update = MagicMock(return_value=[
             Variable(id="var1", value="1.0", kind="sample")
         ])
-        with patch("monitoring.equipment_monitor.asyncio.get_event_loop") as mock_loop, \
-             patch("monitoring.equipment_monitor.asyncio.run_coroutine_threadsafe") as mock_broadcast:
-            mock_loop.return_value.is_running.return_value = True
+        mock_loop = MagicMock()
+        mock_loop.is_running.return_value = True
+        monitor.set_event_loop(mock_loop)
+
+        with patch("monitoring.equipment_monitor.asyncio.run_coroutine_threadsafe") as mock_broadcast:
             monitor._on_message("EQUIPMENT-1", {"ID": "var1", "VALUE": "1.0"})
             mock_broadcast.assert_called_once()
 

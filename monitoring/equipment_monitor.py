@@ -25,6 +25,10 @@ class EquipmentMonitor:
         self._equipment_service = equipment_service
         self._registry = registry
         self._active: dict[str, str] = {}
+        self._loop: asyncio.AbstractEventLoop | None = None
+
+    def set_event_loop(self, loop: asyncio.AbstractEventLoop):
+        self._loop = loop
 
     def is_active(self, asset_uuid: str) -> bool:
         return asset_uuid in self._active
@@ -56,7 +60,7 @@ class EquipmentMonitor:
         self._stream_service.drop_equipment_stream(asset_uuid)
         self._topic_subscriber.unsubscribe(topic)
         print(f"Stopped monitoring for equipment {asset_uuid}")
-    
+
     def _initialize_asset(self, asset_uuid: str):
         self.asset = Asset(
             asset_uuid=asset_uuid,
@@ -68,10 +72,12 @@ class EquipmentMonitor:
         try:
             variables = self._equipment_service.enrich_update(asset_uuid, msg_value)
             message = DeviceUpdateMessage(asset_uuid=asset_uuid, variables=variables).to_json()
-            loop = asyncio.get_event_loop()
+            loop = self._loop or asyncio.get_event_loop()
             if loop.is_running():
                 asyncio.run_coroutine_threadsafe(
                     self._registry.broadcast(asset_uuid, message), loop
                 )
+            else:
+                print(f"Event loop not available, dropping message for {asset_uuid}")
         except Exception as e:
             print(f"Error handling message for {asset_uuid}: {e}")
