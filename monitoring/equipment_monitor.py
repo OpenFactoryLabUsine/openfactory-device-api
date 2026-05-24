@@ -71,7 +71,7 @@ class EquipmentMonitor:
     def _on_message(self, asset_uuid: str, msg_value: dict):
         try:
             variables = self._equipment_service.enrich_update(asset_uuid, msg_value)
-            message = DeviceUpdateMessage(asset_uuid=asset_uuid, variables=variables).to_json()
+            message = DeviceUpdateMessage(asset_uuid=asset_uuid, variables=variables).to_dict()
             loop = self._loop or asyncio.get_event_loop()
             if loop.is_running():
                 asyncio.run_coroutine_threadsafe(

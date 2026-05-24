@@ -79,10 +79,13 @@ class DeviceUpdateMessage:
     event: str = "equipment_update"
     timestamp: float = field(default_factory=time.time)
 
-    def to_json(self) -> str:
-        return json.dumps({
+    def to_dict(self) -> dict:
+        return {
             "event": self.event,
             "asset_uuid": self.asset_uuid,
             "timestamp": self.timestamp,
             "items": [asdict(item) for item in self.variables],
-        })
+        }
+
+    def to_json(self) -> str:
+        return json.dumps(self.to_dict())
