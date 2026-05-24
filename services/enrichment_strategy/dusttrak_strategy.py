@@ -7,12 +7,20 @@ from services.enrichment_strategy.equipment_enrichment_strategy import (
 
 
 class DusttrakStrategy(DeviceEnrichmentStrategy):
+    _TABLE_NOT_FOUND_CODE = 40001
+    _unavailable_tables: set[str] = set()
+
     def enrich_equipment_data(self, ksql_client, variable_id: str, value: Any, timestamp: str | None) -> list[Variable]:
         base = Variable(id=variable_id, value=value, kind="sample", timestamp=timestamp)
+        
+        table_name = f"{variable_id}_moving_average"
+        if table_name in self._unavailable_tables:
+            return [base]
+
         try:
             result = ksql_client.query(
                 f"SELECT AVERAGE_VALUE, TIMESTAMP "
-                f"FROM {variable_id}_moving_average "
+                f"FROM {table_name} "
                 f"WHERE timestamp LIKE '{timestamp[:-10]}%';"
             )
             first_row = next(
@@ -27,5 +35,11 @@ class DusttrakStrategy(DeviceEnrichmentStrategy):
                 )
                 return [base, avg]
         except Exception as e:
-            print(f"Error fetching avg for {variable_id}: {e}")
+            error_str = str(e)
+            if str(self._TABLE_NOT_FOUND_CODE) in error_str and "does not exist" in error_str:
+                print(f"Moving average table '{table_name}' not available, skipping until restart.")
+                self._unavailable_tables.add(table_name)
+            else:
+                print(f"Error fetching avg for {variable_id}: {e}")
+
         return [base]
