@@ -67,7 +67,8 @@ class DeviceSession:
             await self._send_error(websocket, "Invalid endpoint")
             return
 
-        asset_uuid = path.split("/")[3]
+        asset_uuid = path.split("/")[3].upper()
+
         await self._run(websocket, asset_uuid)
 
     @_catch_websocket_errors
