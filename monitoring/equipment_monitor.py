@@ -46,7 +46,7 @@ class EquipmentMonitor:
                 topic=topic,
                 group_id=f"api_equipment_stream_group_{asset_uuid}",
                 on_message=self._on_message,
-                message_filter=lambda key: key == asset_uuid,
+                message_filter=lambda key: key == asset_uuid.upper(),
             )
             self._active[asset_uuid] = topic
             print(f"Started monitoring for equipment {asset_uuid}")
