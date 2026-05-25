@@ -130,6 +130,8 @@ class DeviceSession:
                     )
                 except ConnectionClosed:
                     break
+        except asyncio.CancelledError:
+            raise
         except Exception as e:
             print(f"Outgoing pipe error: {e}")
 
@@ -148,6 +150,8 @@ class DeviceSession:
                     await self._send_error(websocket, f"Invalid JSON: {e}")
                 except ConnectionClosed:
                     break
+        except asyncio.CancelledError:
+            raise
         except Exception as e:
             print(f"Incoming pipe error for {asset_uuid}: {e}")
 
