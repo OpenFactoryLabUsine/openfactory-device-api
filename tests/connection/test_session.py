@@ -32,7 +32,6 @@ async def test_accept_equipments_list_path(session, mock_websocket):
 async def test_pipe_outgoing_sends_ping_with_active_equipment_count(
     session, registry, mock_websocket
 ):
-    mock_websocket.request.path = "/ws/equipments/CNC"
     mock_websocket.send = AsyncMock(side_effect=ConnectionClosed(None, None))
 
     await registry.add(websocket=mock_websocket, asset_uuid="CNC")
