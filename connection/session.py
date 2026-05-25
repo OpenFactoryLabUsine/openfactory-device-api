@@ -103,6 +103,7 @@ class DeviceSession:
     async def _send_initial_data(
         self, websocket: WebSocketServerProtocol, asset_uuid: str
     ):
+        asset_uuid = asset_uuid.upper()
         variables = self._equipment_service.get_equipment_variables(asset_uuid)
         await websocket.send(
             ConnectionEstablishedMessage(

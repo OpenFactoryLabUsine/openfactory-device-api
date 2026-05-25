@@ -67,24 +67,6 @@ class EquipmentService:
             print(f"Error getting variables for {asset_uuid}: {e}")
             return {}
 
-    def get_initial_variables(self, asset_uuid: str) -> list[Variable]:
-        try:
-            result = self._ksql_client.query(
-                f"SELECT ID, VALUE FROM assets "
-                f"WHERE ASSET_UUID = '{asset_uuid}' "
-                f"AND TYPE IN ('Samples') "
-                f"AND VALUE != 'UNAVAILABLE';"
-            )
-            strategy = self._get_strategy(asset_uuid)
-            items = []
-            for row in result:
-                if "ID" in row and "VALUE" in row:
-                    items.extend(strategy.enrich_equipment_data(self._ksql_client, row["ID"], row["VALUE"], None))
-            return items
-        except Exception as e:
-            print(f"Error getting initial items for {asset_uuid}: {e}")
-            return []
-
     def enrich_update(self, asset_uuid: str, msg_value: dict) -> list[Variable]:
         strategy = self._get_strategy(asset_uuid)
         return strategy.enrich_equipment_data(
