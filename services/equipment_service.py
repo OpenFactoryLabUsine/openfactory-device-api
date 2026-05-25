@@ -26,14 +26,29 @@ class EquipmentService:
         return self._default_strategy
 
     def get_all_equipments(self) -> list[str]:
+        all_equipments = []
+        available_equipments = []
         try:
             result = self._ksql_client.query(
                 "SELECT ASSET_UUID FROM assets_type WHERE TYPE LIKE 'Device';"
             )
-            return [row["ASSET_UUID"] for row in result if row.get("ASSET_UUID")]
+            all_equipments = [row["ASSET_UUID"] for row in result if row.get("ASSET_UUID")]
         except Exception as e:
             print(f"Error getting equipments: {e}")
             return []
+        try:
+            for equipment in all_equipments:
+                uppercase_equipment = equipment.upper()
+                result = self._ksql_client.query(
+                    f"SELECT AVAILABILITY FROM assets_avail WHERE ASSET_UUID = '{uppercase_equipment}';"
+                )
+                available = [row["AVAILABILITY"] for row in result if row.get("AVAILABILITY")]
+                if available and available[0] == "AVAILABLE":
+                    available_equipments.append(equipment)
+        except Exception as e:
+            print(f"Error getting equipments: {e}")
+            return []
+        return available_equipments
 
     def get_equipment_variables(self, asset_uuid: str) -> dict:
         try:
