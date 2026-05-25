@@ -41,6 +41,7 @@ class EquipmentMonitor:
         try:
             self._initialize_asset(asset_uuid)
             topic = self._stream_service.create_equipment_stream(asset_uuid)
+            print(f"Created stream for equipment {asset_uuid} on topic {topic}")
             self._topic_subscriber.subscribe(
                 topic=topic,
                 group_id=f"api_equipment_stream_group_{asset_uuid}",
