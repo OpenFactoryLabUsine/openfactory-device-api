@@ -27,6 +27,7 @@ async def test_accept_equipments_list_path(session, mock_websocket):
     print(sent)
     assert sent["event"] == "equipments_list"
 
+
 @pytest.mark.asyncio
 async def test_pipe_outgoing_sends_ping_with_active_equipment_count(
     session, registry, mock_websocket
@@ -34,15 +35,11 @@ async def test_pipe_outgoing_sends_ping_with_active_equipment_count(
     mock_websocket.request.path = "/ws/equipments/CNC"
     mock_websocket.send = AsyncMock(side_effect=ConnectionClosed(None, None))
 
-    await registry.add(asset_uuid="CNC", websocket=mock_websocket)
+    await registry.add(websocket=mock_websocket, asset_uuid="CNC")
 
     queue = registry.get_queue(mock_websocket)
     assert queue is not None
-
-    async def hang():
-        await asyncio.sleep(999)
-
-    queue.get = AsyncMock(side_effect=hang)
+    queue.get = AsyncMock(side_effect=asyncio.TimeoutError)
 
     await session._pipe_outgoing(mock_websocket)
 
