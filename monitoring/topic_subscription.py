@@ -71,3 +71,6 @@ class TopicSubscriber:
 
         except Exception as e:
             print(f"Consumer error for {topic}: {e}")
+        finally:
+            if topic in self._consumers:
+                self._consumers.pop(topic).close()
