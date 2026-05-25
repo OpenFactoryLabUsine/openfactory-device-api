@@ -45,13 +45,7 @@ class TopicSubscriber:
     def active_topics(self) -> list[str]:
         return list(self._consumers)
 
-    def _consume(
-        self,
-        topic: str,
-        group_id: str,
-        on_message: Callable[[str, dict], None],
-        message_filter: Callable[[str], bool] | None,
-    ):
+    def _consume(self, topic, group_id, on_message, message_filter):
         try:
             consumer = KafkaConsumer(
                 topic,
@@ -63,15 +57,17 @@ class TopicSubscriber:
                 enable_auto_commit=False,
             )
             self._consumers[topic] = consumer
+            print(f"Consumer started for topic {topic}, partitions: {consumer.partitions_for_topic(topic)}")
 
             for msg in consumer:
+                print(f"Raw message received: key={msg.key!r} value={msg.value!r}")
                 if self._stop_flags[topic].is_set():
                     break
                 if msg.value and (not message_filter or message_filter(msg.key)):
+                    print(f"Filter passed, calling on_message for {msg.key}")
                     on_message(msg.key, msg.value)
+                else:
+                    print(f"Filter rejected: key={msg.key!r}, filter={message_filter}")
 
         except Exception as e:
             print(f"Consumer error for {topic}: {e}")
-        finally:
-            if topic in self._consumers:
-                self._consumers.pop(topic).close()
