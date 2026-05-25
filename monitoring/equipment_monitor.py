@@ -26,6 +26,7 @@ class EquipmentMonitor:
         self._registry = registry
         self._active: dict[str, str] = {}
         self._loop: asyncio.AbstractEventLoop | None = None
+        self.asset = None
 
     def set_event_loop(self, loop: asyncio.AbstractEventLoop):
         self._loop = loop
@@ -62,14 +63,19 @@ class EquipmentMonitor:
         print(f"Stopped monitoring for equipment {asset_uuid}")
 
     def _initialize_asset(self, asset_uuid: str):
-        self.asset = Asset(
-            asset_uuid=asset_uuid,
-            ksqlClient=self._openfactory_app.ksqlClient,
-            bootstrap_servers=self._openfactory_app.bootstrap_servers,
-        )
+        try:
+            self.asset = Asset(
+                asset_uuid=asset_uuid,
+                ksqlClient=self._openfactory_app.ksqlClient,
+                bootstrap_servers=self._openfactory_app.bootstrap_servers,
+            )
+        except Exception as e:
+            print(f"Error initializing asset {asset_uuid}: {e}")
+            raise StreamCreationException(f"Could not initialize asset {asset_uuid}")
 
     def _on_message(self, asset_uuid: str, msg_value: dict):
         try:
+            print(f"Received message for {asset_uuid}: {msg_value}")
             variables = self._equipment_service.enrich_update(asset_uuid, msg_value)
             message = DeviceUpdateMessage(asset_uuid=asset_uuid, variables=variables).to_dict()
             loop = self._loop or asyncio.get_event_loop()
