@@ -71,7 +71,7 @@ class EquipmentMonitor:
             )
         except Exception as e:
             print(f"Error initializing asset {asset_uuid}: {e}")
-            raise StreamCreationException(f"Could not initialize asset {asset_uuid}")
+            raise StreamCreationException(f"Could not initialize asset {asset_uuid}") from e
 
     def _on_message(self, asset_uuid: str, msg_value: dict):
         try:
