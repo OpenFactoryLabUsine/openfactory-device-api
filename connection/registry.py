@@ -26,11 +26,16 @@ class ConnectionRegistry:
                 return
             asset_uuid = self._connection_to_equipment.pop(websocket)
             self.equipment_connections[asset_uuid].discard(websocket)
+            if not self.equipment_connections[asset_uuid]:
+                self.equipment_connections.pop(asset_uuid, None)
             self._queues.pop(websocket, None)
 
     async def remove_all(self):
         for websocket in list(self._connection_to_equipment.keys()):
             await self.remove(websocket)
+
+    def active_equipment_count(self) -> int:
+        return len(self.equipment_connections)
 
     async def broadcast(self, asset_uuid: str, message: dict):
         for connection in self.equipment_connections[asset_uuid].copy():

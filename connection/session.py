@@ -123,7 +123,11 @@ class DeviceSession:
                     message = await asyncio.wait_for(queue.get(), timeout=1.0)
                     await websocket.send(message)
                 except TimeoutError:
-                    await websocket.send(PingMessage().to_json())
+                    await websocket.send(
+                        PingMessage(
+                            active_equipments=self._registry.active_equipment_count()
+                        ).to_json()
+                    )
                 except ConnectionClosed:
                     break
         except Exception as e:
@@ -207,7 +211,9 @@ class DeviceSession:
                 try:
                     await asyncio.sleep(30)
                     await websocket.send(
-                        PingMessage(active_equipments=len(equipment_list)).to_json()
+                        PingMessage(
+                            active_equipments=self._registry.active_equipment_count()
+                        ).to_json()
                     )
                 except ConnectionClosed:
                     break

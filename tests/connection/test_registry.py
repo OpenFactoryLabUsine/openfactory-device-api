@@ -26,6 +26,16 @@ async def test_registry_removes_connection(registry):
     await registry.remove(websocket=conn)
 
     assert get_connected_equipments_count(registry) == 0
+    assert registry.equipment_connections == {}
+    assert registry.active_equipment_count() == 0
+
+@pytest.mark.asyncio
+async def test_registry_active_equipment_count(registry):
+    await registry.add(asset_uuid="equipment-1", websocket=conn)
+    other_conn = object()
+    await registry.add(asset_uuid="equipment-2", websocket=other_conn)
+
+    assert registry.active_equipment_count() == 2
 
 @pytest.mark.asyncio
 async def test_registry_removes_all_connections_to_same_equipment(registry):

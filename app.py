@@ -77,10 +77,11 @@ class OpenFactoryAPI(OpenFactoryApp):
         while self.running:
             try:
                 total = self._registry.total()
+                active_equipment_count = self._registry.active_equipment_count()
                 if total > 0:
                     print(
                         f"Active connections: {total} "
-                        f"across {len(self._registry.equipment_connections)} equipments"
+                        f"across {active_equipment_count} equipments"
                     )
                 time.sleep(30)
             except KeyboardInterrupt:
