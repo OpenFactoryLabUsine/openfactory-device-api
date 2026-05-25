@@ -130,9 +130,9 @@ class DeviceSession:
                     )
                 except ConnectionClosed:
                     break
-        except (asyncio.CancelledError, KeyboardInterrupt, SystemExit, GeneratorExit):
-            raise
         except BaseException as e:
+            if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)) or type(e).__name__ == "CancelledError":
+                raise
             print(f"Outgoing pipe error: {e}")
 
     async def _pipe_incoming(
@@ -150,9 +150,9 @@ class DeviceSession:
                     await self._send_error(websocket, f"Invalid JSON: {e}")
                 except ConnectionClosed:
                     break
-        except (asyncio.CancelledError, KeyboardInterrupt, SystemExit, GeneratorExit):
-            raise
         except BaseException as e:
+            if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)) or type(e).__name__ == "CancelledError":
+                raise
             print(f"Incoming pipe error for {asset_uuid}: {e}")
 
     async def _route(
