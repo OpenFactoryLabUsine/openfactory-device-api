@@ -56,13 +56,11 @@ class TopicSubscriber:
             consumer = KafkaConsumer(
                 topic,
                 bootstrap_servers=self._bootstrap_servers,
-                group_id=group_id,
-                value_deserializer=lambda m: (
-                    json.loads(m.decode("utf-8")) if m else None
-                ),
+                group_id=None,
+                value_deserializer=lambda m: json.loads(m.decode("utf-8")) if m else None,
                 key_deserializer=lambda m: m.decode("utf-8") if m else None,
                 auto_offset_reset="latest",
-                enable_auto_commit=True,
+                enable_auto_commit=False,
             )
             self._consumers[topic] = consumer
 
