@@ -122,7 +122,7 @@ class DeviceSession:
                 try:
                     message = await asyncio.wait_for(queue.get(), timeout=1.0)
                     await websocket.send(message)
-                except TimeoutError:
+                except (TimeoutError, asyncio.TimeoutError):
                     await websocket.send(
                         PingMessage(
                             active_equipments=self._registry.active_equipment_count()
