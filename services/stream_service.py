@@ -13,12 +13,17 @@ class StreamService:
         asset_uuid = asset_uuid.upper()
         try:
             self._ksql_client.statement_query(
-                f"CREATE STREAM IF NOT EXISTS EQUIPMENT_STREAM_{asset_uuid} "
+            f"DROP STREAM IF EXISTS EQUIPMENT_STREAM_{asset_uuid};"
+            )   
+
+            self._ksql_client.statement_query(
+                f"CREATE STREAM EQUIPMENT_STREAM_{asset_uuid} "
                 f"WITH (KAFKA_TOPIC='{topic_name}', PARTITIONS=1) AS "
-                f"SELECT ASSET_UUID AS KEY, ID, VALUE, "
-                f"TIMESTAMPTOSTRING(ROWTIME, 'yyyy-MM-dd''T''HH:mm:ss[.nnnnnnn]', 'Canada/Eastern') AS TIMESTAMP "
-                f"FROM ASSETS_STREAM WHERE ASSET_UUID = '{asset_uuid}' "
-                f"AND TYPE IN ('Samples')"
+                f"SELECT '{asset_uuid}' AS ASSET_UUID, ID, VALUE, TIMESTAMP "
+                f"FROM ENRICHED_ASSETS_STREAM "
+                f"WHERE ASSET_UUID = '{asset_uuid}' "
+                f"AND TYPE IN ('Events', 'Condition', 'Samples') AND VALUE != 'UNAVAILABLE' "
+                f"PARTITION BY '{asset_uuid}' "
                 f"EMIT CHANGES;"
             )
             return topic_name
