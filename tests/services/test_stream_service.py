@@ -10,7 +10,7 @@ class TestCreateDeviceStream:
 
     def test_executes_create_stream_statement(self, stream_service, mock_ksql):
         stream_service.create_equipment_stream("EQUIPMENT-1")
-        mock_ksql.statement_query.assert_called_once()
+        assert mock_ksql.statement_query.call_count == 2
         query = mock_ksql.statement_query.call_args.args[0]
         assert "EQUIPMENT_STREAM_EQUIPMENT-1" in query
         assert "EQUIPMENT-1_MONITORING" in query
