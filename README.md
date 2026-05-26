@@ -31,7 +31,7 @@ Envoyé immédiatement lors de la connexion avec l'état complet et courant de l
   "event": "equipment_update",
   "asset_uuid": "EQUIPMENT-1",
   "timestamp": 1748000000.0,
-  "items": [
+  "variables": [
     {
       "id": "EQUIPMENT-1-temperature",
       "value": "23.4",
@@ -57,11 +57,11 @@ Envoyé immédiatement lors de la connexion avec l'état complet et courant de l
 }
 ```
 
-**Types d'items**
+**Types de variables**
 
 | Type       | Description                                                                                   |
 |------------|-----------------------------------------------------------------------------------------------|
-| `sample`   | Valeur d'un dataitem(variable) de l'appareil                                                  |
+| `sample`   | Valeur d'une variable de l'équipement                                                         |
 | tout autre | Donnée propre à une variable, issue d'un traitement venant de OpenFactory                     |
 
 ---
