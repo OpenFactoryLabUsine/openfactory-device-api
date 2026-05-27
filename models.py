@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
 
@@ -20,4 +20,3 @@ class Variable:
     value: Any
     kind: str = "sample"
     timestamp: str | None = None
-    meta: dict = field(default_factory=dict)

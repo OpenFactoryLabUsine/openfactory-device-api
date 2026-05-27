@@ -36,22 +36,19 @@ Envoyé immédiatement lors de la connexion avec l'état complet et courant de l
       "id": "EQUIPMENT-1-temperature",
       "value": "23.4",
       "kind": "sample",
-      "timestamp": "2026-01-01T12:00:00.0000000",
-      "meta": {}
+      "timestamp": "2026-01-01T12:00:00.0000000"
     },
     {
       "id": "stat:on",
       "value": 3600,
       "kind": "stat",
-      "timestamp": null,
-      "meta": {}
+      "timestamp": null
     },
     {
       "id": "avg:EQUIPMENT-1-temperature",
       "value": "22.1",
       "kind": "avg",
-      "timestamp": "2026-01-01T12:00:00.0000000",
-      "meta": {}
+      "timestamp": "2026-01-01T12:00:00.0000000"
     }
   ]
 }
