@@ -1,3 +1,4 @@
+import re
 from typing import Any
 
 from models import Variable
@@ -18,7 +19,7 @@ class DusttrakStrategy(DeviceEnrichmentStrategy):
             return [base]
 
         try:
-            timestamp_prefix = timestamp.rstrip('Z') if timestamp else ""
+            timestamp_prefix = re.sub(r"(Z|[+-]\d{2}(:?\d{2})?)$", "", timestamp) if timestamp else ""
             result = ksql_client.query(
                 f"SELECT AVERAGE_VALUE, TIMESTAMP "
                 f"FROM {table_name} "
