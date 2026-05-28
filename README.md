@@ -76,8 +76,7 @@ Envoyé une seule fois lors de la connexion a `/ws/equipments`, avec l'ensemble 
       "asset_uuid": "EQUIPMENT-1",
       "variables": {
         "EQUIPMENT-1-temperature": "23.4"
-      },
-      "durations": {}
+      }
     }
   ]
 }
