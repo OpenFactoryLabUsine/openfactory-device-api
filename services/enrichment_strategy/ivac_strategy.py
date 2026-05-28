@@ -44,6 +44,7 @@ class IvacStrategy(DeviceEnrichmentStrategy):
                 print(f"Error fetching IVAC stats for {variable_id}: {e}")
             stats = []
 
+        print(f"Fetched {stats} for {variable_id} at {timestamp}.")
         return [base] + stats
 
 

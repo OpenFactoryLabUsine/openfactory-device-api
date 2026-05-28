@@ -33,7 +33,12 @@ class DusttrakStrategy(DeviceEnrichmentStrategy):
                     kind="avg",
                     timestamp=first_row["TIMESTAMP"],
                 )
+                print(f"Fetched average for {variable_id} at {timestamp}: {avg.value}")
                 return [base, avg]
+            
+            print(f"No valid average found for {variable_id} at {timestamp}.")
+            print(f"Result: {first_row}")
+
         except Exception as e:
             error_str = str(e)
             if str(self._TABLE_NOT_FOUND_CODE) in error_str and "does not exist" in error_str:
