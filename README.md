@@ -30,7 +30,6 @@ Envoyé immédiatement lors de la connexion avec l'état complet et courant de l
 {
   "event": "equipment_update",
   "asset_uuid": "EQUIPMENT-1",
-  "timestamp": 1748000000.0,
   "variables": [
     {
       "id": "EQUIPMENT-1-temperature",
@@ -70,12 +69,14 @@ Envoyé une seule fois lors de la connexion a `/ws/equipments`, avec l'ensemble 
 ```json
 {
   "event": "equipments_list",
-  "timestamp": 1748000000.0,
   "equipments": [
     {
       "asset_uuid": "EQUIPMENT-1",
       "variables": {
-        "EQUIPMENT-1-temperature": "23.4"
+        "id": "EQUIPMENT-1-temperature",
+        "value": 20.5,
+        "kind": "sample",
+        "timestamp": null
       }
     }
   ]
