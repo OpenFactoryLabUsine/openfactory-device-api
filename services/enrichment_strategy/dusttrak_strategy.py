@@ -13,7 +13,7 @@ class DusttrakStrategy(DeviceEnrichmentStrategy):
     def enrich_equipment_data(self, ksql_client, variable_id: str, value: Any, timestamp: str | None) -> list[Variable]:
         base = Variable(id=variable_id, value=value, kind="sample", timestamp=timestamp)
         
-        table_name = f"{variable_id}_moving_average"
+        table_name = f"{variable_id}_moving_average".upper()
         if table_name in self._unavailable_tables:
             return [base]
 

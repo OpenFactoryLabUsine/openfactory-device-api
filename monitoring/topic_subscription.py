@@ -60,11 +60,9 @@ class TopicSubscriber:
             print(f"Consumer started for topic {topic}, partitions: {consumer.partitions_for_topic(topic)}")
 
             for msg in consumer:
-                print(f"Raw message received: key={msg.key!r} value={msg.value!r}")
                 if self._stop_flags[topic].is_set():
                     break
                 if msg.value and (not message_filter or message_filter(msg.key)):
-                    print(f"Filter passed, calling on_message for {msg.key}")
                     on_message(msg.key, msg.value)
                 else:
                     print(f"Filter rejected: key={msg.key!r}, filter={message_filter}")
