@@ -18,15 +18,16 @@ class DusttrakStrategy(DeviceEnrichmentStrategy):
             return [base]
 
         try:
+            timestamp_prefix = timestamp.rstrip('Z') if timestamp else ""
             result = ksql_client.query(
                 f"SELECT AVERAGE_VALUE, TIMESTAMP "
                 f"FROM {table_name} "
-                f"WHERE timestamp LIKE '{timestamp[:-10]}%';"
+                f"WHERE timestamp LIKE '{timestamp_prefix}%';"
             )
             first_row = next(
                 (r for r in result if "AVERAGE_VALUE" in r and "TIMESTAMP" in r), None
             )
-            print(f"Table queried: {table_name}, query: SELECT AVERAGE_VALUE, TIMESTAMP FROM {table_name} WHERE timestamp LIKE '{timestamp[:-10]}%';")
+            print(f"Table queried: {table_name}, query: SELECT AVERAGE_VALUE, TIMESTAMP FROM {table_name} WHERE timestamp LIKE '{timestamp_prefix}%';")
             if first_row:
                 avg = Variable(
                     id=f"avg:{variable_id}",

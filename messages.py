@@ -1,6 +1,6 @@
 import json
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 from models import Variable
@@ -12,7 +12,7 @@ class ConnectionEstablishedMessage:
     variables: dict[str, Any]
     connection_count: int
     event: str = "connection_established"
-    timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
+    timestamp: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
     def to_json(self) -> str:
         return json.dumps(asdict(self))
@@ -22,7 +22,7 @@ class ConnectionEstablishedMessage:
 class PingMessage:
     active_equipments: int = 0
     event: str = "ping"
-    timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
+    timestamp: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
     def to_json(self) -> str:
         return json.dumps(asdict(self))
@@ -32,7 +32,7 @@ class PingMessage:
 class ErrorMessage:
     message: str
     event: str = "error"
-    timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
+    timestamp: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
     def to_json(self) -> str:
         return json.dumps(asdict(self))
@@ -57,7 +57,7 @@ class StreamDroppedMessage:
     asset_uuid: str
     success: bool = True
     event: str = "connection_dropped"
-    timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
+    timestamp: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
     def to_json(self) -> str:
         return json.dumps(asdict(self))
@@ -67,7 +67,7 @@ class StreamDroppedMessage:
 class DevicesListMessage:
     equipments: list
     event: str = "equipments_list"
-    timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
+    timestamp: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
     def to_json(self) -> str:
         return json.dumps(asdict(self))
