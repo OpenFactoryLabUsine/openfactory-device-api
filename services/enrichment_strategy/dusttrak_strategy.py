@@ -35,7 +35,6 @@ class DusttrakStrategy(DeviceEnrichmentStrategy):
             first_row = next(
                 (r for r in result if "AVERAGE_VALUE" in r and "TIMESTAMP" in r), None
             )
-            print(f"Table queried: {table_name}, query: SELECT AVERAGE_VALUE, TIMESTAMP FROM {table_name} WHERE timestamp LIKE '{timestamp_prefix}%';")
             if first_row:
                 avg = Variable(
                     id=f"avg:{variable_id}",
@@ -43,7 +42,6 @@ class DusttrakStrategy(DeviceEnrichmentStrategy):
                     kind="avg",
                     timestamp=first_row["TIMESTAMP"],
                 )
-                print(f"Fetched average for {variable_id} at {timestamp}: {avg.value}")
                 return [base, avg]
             
             print(f"No valid average found for {variable_id} at {timestamp}.")
