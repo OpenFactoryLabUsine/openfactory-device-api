@@ -26,7 +26,7 @@ class DusttrakStrategy(DeviceEnrichmentStrategy):
             first_row = next(
                 (r for r in result if "AVERAGE_VALUE" in r and "TIMESTAMP" in r), None
             )
-            print(f"Table queried: {table_name}, result: {result}")
+            print(f"Table queried: {table_name}, query: SELECT AVERAGE_VALUE, TIMESTAMP FROM {table_name} WHERE timestamp LIKE '{timestamp[:-10]}%';")
             if first_row:
                 avg = Variable(
                     id=f"avg:{variable_id}",
