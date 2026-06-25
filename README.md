@@ -6,11 +6,11 @@ L'API expose un serveur WebSocket qui permet de suivre en temps réel l'état de
 
 ## Points de connexion
 
-### `GET /ws/equipments`
+### `GET /equipments`
 
 Retourne la liste de tous les appareils disponibles et leur état courant. La connexion est maintenue active par des pings périodiques.
 
-### `GET /ws/equipments/{asset_uuid}`
+### `GET /equipments/{asset_uuid}`
 
 Ouvre une connexion persistante vers un appareil spécifique. Le serveur diffuse les mises à jour en temps réel au fur et à mesure que les données de l'appareil changent.
 
