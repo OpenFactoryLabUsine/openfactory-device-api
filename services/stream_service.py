@@ -8,16 +8,16 @@ class StreamService:
         self._ksql_client = ksql_client
 
     def create_equipment_stream(self, asset_uuid: str) -> str:
-        topic_name = f"{asset_uuid}_MONITORING".upper()
-        print(f"Creating stream EQUIPMENT_STREAM_{asset_uuid} on topic {topic_name}")
-        asset_uuid = asset_uuid.upper()
+        parsed_uuid = asset_uuid.replace("-", "_")
+        topic_name = f"{parsed_uuid}_MONITORING".upper()
+        print(f"Creating stream EQUIPMENT_STREAM_{parsed_uuid} on topic {topic_name}")
         try:
             self._ksql_client.statement_query(
-            f"DROP STREAM IF EXISTS EQUIPMENT_STREAM_{asset_uuid};"
+            f"DROP STREAM IF EXISTS EQUIPMENT_STREAM_{parsed_uuid};"
             )   
 
             self._ksql_client.statement_query(
-                f"CREATE STREAM EQUIPMENT_STREAM_{asset_uuid} "
+                f"CREATE STREAM EQUIPMENT_STREAM_{parsed_uuid} "
                 f"WITH (KAFKA_TOPIC='{topic_name}', PARTITIONS=1) AS "
                 f"SELECT '{asset_uuid}' AS ASSET_UUID, ID, VALUE, TIMESTAMP "
                 f"FROM ENRICHED_ASSETS_STREAM "
