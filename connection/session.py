@@ -59,15 +59,15 @@ class DeviceSession:
     async def accept(self, websocket: WebSocketServerProtocol):
         path = websocket.request.path
 
-        if path == "/ws/equipments":
+        if path == "/equipments":
             await self._send_equipments_list(websocket)
             return
 
-        if not path.startswith("/ws/equipments/"):
+        if not path.startswith("/equipments/"):
             await self._send_error(websocket, "Invalid endpoint")
             return
 
-        asset_uuid = path.split("/")[3].upper()
+        asset_uuid = path.split("/")[2].upper()
 
         await self._run(websocket, asset_uuid)
 
@@ -92,7 +92,8 @@ class DeviceSession:
                 try:
                     await task
                 except asyncio.CancelledError:
-                    contextlib.suppress(asyncio.CancelledError)
+                    with contextlib.suppress(asyncio.CancelledError):
+                        await task
             for task in done:
                 if not task.cancelled() and task.exception():
                     print(f"Task error: {task.exception()}")
@@ -227,10 +228,12 @@ class DeviceSession:
             try:
                 await websocket.close()
             except Exception:
-                contextlib.suppress(Exception)
+                with contextlib.suppress(Exception):
+                    await websocket.close()
 
     async def _send_error(self, websocket: WebSocketServerProtocol, message: str):
         try:
             await websocket.send(ErrorMessage(message=message).to_json())
         except ConnectionClosed:
-            contextlib.suppress(ConnectionClosed)
+            with contextlib.suppress(ConnectionClosed):
+                await websocket.close()
