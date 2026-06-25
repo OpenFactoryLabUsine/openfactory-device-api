@@ -8,7 +8,7 @@ from websockets import ConnectionClosed
 
 @pytest.mark.asyncio
 async def test_accept_wrong_path_sends_error(session, mock_websocket):
-    mock_websocket.request.path = "/ws/invalid"
+    mock_websocket.request.path = "/invalid"
 
     await session.accept(mock_websocket)
 
@@ -18,7 +18,7 @@ async def test_accept_wrong_path_sends_error(session, mock_websocket):
 
 @pytest.mark.asyncio
 async def test_accept_equipments_list_path(session, mock_websocket):
-    mock_websocket.request.path = "/ws/equipments"
+    mock_websocket.request.path = "/equipments"
     mock_websocket.send.side_effect = [None, ConnectionClosed(None, None)]
 
     await session.accept(mock_websocket)
