@@ -87,6 +87,7 @@ class DeviceSession:
                 [outgoing, incoming],
                 return_when=asyncio.FIRST_COMPLETED,
             )
+            
             for task in pending:
                 task.cancel()
                 try:
@@ -95,8 +96,11 @@ class DeviceSession:
                     with contextlib.suppress(asyncio.CancelledError):
                         await task
             for task in done:
-                if not task.cancelled() and task.exception():
-                    print(f"Task error: {task.exception()}")
+                if task.exception():
+                    print(f"Task {task.get_name() if hasattr(task, 'get_name') else 'task'} failed with: {task.exception()}")
+                    traceback.print_exception(type(task.exception()), task.exception(), task.exception().__traceback__)
+                else:
+                    print(f"Task {task.get_name() if hasattr(task, 'get_name') else 'task'} finished normally.")
         finally:
             await self._registry.remove(websocket)
             print(f"Session closed for equipment: {asset_uuid}")
