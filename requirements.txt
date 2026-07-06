@@ -3,3 +3,4 @@ pytest
 requests
 ruff
 pytest-asyncio
+nats-py

@@ -5,7 +5,7 @@ from openfactory.assets import Asset
 from connection.registry import ConnectionRegistry
 from exceptions import StreamCreationException
 from messages import DeviceUpdateMessage
-from monitoring.topic_subscription import TopicSubscriber
+from monitoring.asset_subscription import AssetSubscriber
 from services.equipment_service import EquipmentService
 from services.stream_service import StreamService
 
@@ -14,13 +14,13 @@ class EquipmentMonitor:
     def __init__(
         self,
         stream_service: StreamService,
-        topic_subscriber: TopicSubscriber,
+        topic_subscriber: AssetSubscriber,
         openfactory_app,
         equipment_service: EquipmentService,
         registry: ConnectionRegistry,
     ):
         self._stream_service = stream_service
-        self._topic_subscriber = topic_subscriber
+        self._asset_subscriber = topic_subscriber
         self._openfactory_app = openfactory_app
         self._equipment_service = equipment_service
         self._registry = registry
@@ -40,15 +40,13 @@ class EquipmentMonitor:
 
         try:
             self._initialize_asset(asset_uuid)
-            topic = self._stream_service.create_equipment_stream(asset_uuid)
-            print(f"Created stream for equipment {asset_uuid} on topic {topic}")
-            self._topic_subscriber.subscribe(
-                topic=topic,
-                group_id=f"api_equipment_stream_group_{asset_uuid}",
+            subject = f"{asset_uuid.upper()}.>"
+            self._asset_subscriber.subscribe(
+                subject=subject,
                 on_message=self._on_message,
                 message_filter=lambda key: key == asset_uuid.upper(),
             )
-            self._active[asset_uuid] = topic
+            self._active[asset_uuid] = subject
             print(f"Started monitoring for equipment {asset_uuid}")
 
         except StreamCreationException as e:
@@ -58,9 +56,9 @@ class EquipmentMonitor:
     def stop(self, asset_uuid: str):
         if not self.is_active(asset_uuid):
             return
-        topic = self._active.pop(asset_uuid)
+        subject = self._active.pop(asset_uuid)
         self._stream_service.drop_equipment_stream(asset_uuid)
-        self._topic_subscriber.unsubscribe(topic)
+        self._asset_subscriber.unsubscribe(subject)
         print(f"Stopped monitoring for equipment {asset_uuid}")
 
     def _initialize_asset(self, asset_uuid: str):
