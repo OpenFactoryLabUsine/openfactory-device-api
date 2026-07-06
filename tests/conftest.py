@@ -18,7 +18,6 @@ from config import Config  # noqa: E402
 from connection.registry import ConnectionRegistry  # noqa: E402
 from connection.session import DeviceSession  # noqa: E402
 from monitoring.equipment_monitor import EquipmentMonitor  # noqa: E402
-from monitoring.topic_subscription import TopicSubscriber  # noqa: E402
 from services.equipment_service import EquipmentService  # noqa: E402
 from services.stream_service import StreamService  # noqa: E402
 
@@ -30,10 +29,6 @@ def mock_ksql():
     mock_ksql_client.query.return_value = [{"row": {"columns": ["data1", "data2"]}}]
     
     return mock_ksql_client
-
-@pytest.fixture
-def mock_bootstrap_servers():
-    return "localhost:9092"
 
 @pytest.fixture
 def config():
@@ -60,13 +55,10 @@ def registry():
 
 @pytest.fixture
 def mock_openfactory_app():
-    app = MagicMock()
-    app.method = MagicMock()
-    return app
+    return MagicMock()
 
 @pytest.fixture
-def monitor(stream_service, equipment_service, registry, mock_openfactory_app,
-            mock_bootstrap_servers):
+def monitor(stream_service, equipment_service, registry, mock_openfactory_app):
     topic_subscriber = MagicMock()
     return EquipmentMonitor(
         stream_service=stream_service,
@@ -96,7 +88,3 @@ def mock_websocket():
     ws.recv = AsyncMock()
     ws.close = AsyncMock()
     return ws
-
-@pytest.fixture
-def topic_subscriber(mock_bootstrap_servers):
-    return TopicSubscriber(mock_bootstrap_servers)
