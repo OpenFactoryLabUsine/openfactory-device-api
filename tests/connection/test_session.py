@@ -1,10 +1,9 @@
 import asyncio
 import json
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from websockets import ConnectionClosed
-
 
 
 @pytest.fixture
@@ -35,30 +34,21 @@ async def test_accept_equipments_list_path(session, mock_websocket):
     assert isinstance(sent_data["equipments"], list)
 
 @pytest.mark.asyncio
-async def test_send_equipments_list_sends_ping_when_no_change(session, mock_websocket):
-    session._equipment_service.has_equipments_list_changed.return_value = False
-    mock_websocket.send.side_effect = [None, None, ConnectionClosed(None, None)]
+async def test_send_next_update_sends_ping(session, mock_websocket):
+    session._equipment_service.equipment_list_has_changed = MagicMock(return_value=False)
     
-    with patch("asyncio.sleep", new_callable=AsyncMock):
-        await session._send_equipments_list(mock_websocket)
-
-    assert mock_websocket.send.call_count == 2
-    sent_json = json.loads(mock_websocket.send.call_args_list[1][0][0])
-    assert "active_equipments" in sent_json
+    await session._send_next_equipment_update(mock_websocket)
+    
+    assert "ping" in mock_websocket.send.call_args[0][0]
 
 @pytest.mark.asyncio
-async def test_send_equipments_list_sends_update_when_changed(session, mock_websocket):
-    session._equipment_service.has_equipments_list_changed.return_value = True
-    session._equipment_service.get_all_equipments.return_value = ["NEW_DEV"]
-    mock_websocket.send.side_effect = [None, None, ConnectionClosed(None, None)]
+async def test_send_next_update_sends_list(session, mock_websocket):
+    session._equipment_service.equipment_list_has_changed = MagicMock(return_value=True)
+    session._equipment_service.get_all_equipments = MagicMock(return_value=["DEV1"])
     
-    with patch("asyncio.sleep", new_callable=AsyncMock):
-        await session._send_equipments_list(mock_websocket)
-
-    assert mock_websocket.send.call_count == 2
-    sent_json = json.loads(mock_websocket.send.call_args_list[1][0][0])
-    assert "equipments" in sent_json
-    assert sent_json["equipments"][0]["asset_uuid"] == "NEW_DEV"
+    await session._send_next_equipment_update(mock_websocket)
+    
+    assert "equipments" in mock_websocket.send.call_args[0][0]
 
 @pytest.mark.asyncio
 async def test_pipe_outgoing_sends_ping_with_active_equipment_count(

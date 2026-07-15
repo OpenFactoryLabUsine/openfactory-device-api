@@ -205,20 +205,19 @@ class DeviceSession:
         await websocket.send(StreamDroppedMessage(asset_uuid=asset_uuid).to_json())
 
     async def _equipments(self, websocket: WebSocketServerProtocol):
-        await self._send_currently_available_equipments(websocket)    
+        await self._send_currently_available_equipments(websocket)
         while True:
             try:
                 await asyncio.sleep(30)
-                if self._equipment_service.equipment_list_has_changed():
-                    await self._send_currently_available_equipments(websocket)
-                else:
-                    await websocket.send(
-                        PingMessage(
-                            active_equipments=self._registry.active_equipment_count()
-                        ).to_json()
-                    )
+                await self._send_next_equipment_update(websocket)
             except ConnectionClosed:
                 break
+
+    async def _send_next_equipment_update(self, websocket: WebSocketServerProtocol):
+        if self._equipment_service.equipment_list_has_changed():
+            await self._send_currently_available_equipments(websocket)
+        else:
+            await websocket.send(PingMessage(active_equipments=self._registry.active_equipment_count()).to_json())
 
     async def _send_currently_available_equipments(self, websocket: WebSocketServerProtocol):
         try:
@@ -233,13 +232,6 @@ class DeviceSession:
             await websocket.send(EquipmentsListMessage(equipments=equipment_list).to_json())
         except Exception as e:
             await self._send_error(websocket, f"Failed to get equipments list: {e}")
-        finally:
-            try:
-                await websocket.close()
-            except Exception:
-                with contextlib.suppress(Exception):
-                    await websocket.close()
-    
 
     async def _send_error(self, websocket: WebSocketServerProtocol, message: str):
         try:
