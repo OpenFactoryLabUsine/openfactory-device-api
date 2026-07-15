@@ -74,7 +74,7 @@ class StreamDroppedMessage:
 
 
 @dataclass
-class DevicesListMessage:
+class EquipmentsListMessage:
     equipments: list
     event: str = "equipments_list"
     timestamp: str = field(default_factory=_get_canada_eastern_timestamp)

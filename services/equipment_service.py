@@ -18,6 +18,7 @@ class EquipmentService:
 
     def __init__(self, ksql_client: KSQLDBClient):
         self._ksql_client = ksql_client
+        self._available_equipments = []
 
     def _get_strategy(self, asset_uuid: str) -> DeviceEnrichmentStrategy:
         for prefix, strategy in self._strategies.items():
@@ -27,16 +28,14 @@ class EquipmentService:
 
     def get_all_equipments(self) -> list[str]:
         all_equipments = []
-        available_equipments = []
+        self._available_equipments = []
+
         try:
             result = self._ksql_client.query(
                 "SELECT ASSET_UUID FROM assets_type WHERE TYPE LIKE 'Device';"
             )
             all_equipments = [row["ASSET_UUID"] for row in result if row.get("ASSET_UUID")]
-        except Exception as e:
-            print(f"Error getting equipments: {e}")
-            return []
-        try:
+
             for equipment in all_equipments:
                 uppercase_equipment = equipment.upper()
                 result = self._ksql_client.query(
@@ -44,11 +43,18 @@ class EquipmentService:
                 )
                 available = [row["AVAILABILITY"] for row in result if row.get("AVAILABILITY")]
                 if available and available[0] == "AVAILABLE":
-                    available_equipments.append(equipment)
+                    self._available_equipments.append(equipment)
         except Exception as e:
             print(f"Error getting equipments: {e}")
-            return []
-        return available_equipments
+        return self._available_equipments
+
+    
+    def equipment_list_has_changed(self) -> bool:
+        previous_state = self._available_equipments.copy()
+        current_state = self.get_all_equipments().copy()
+
+        return previous_state != current_state
+
 
     def get_equipment_variables(self, asset_uuid: str) -> dict:
         try:
